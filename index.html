@@ -180,42 +180,52 @@ const T = {
   ENG: { name: 'England',             flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
   SEN: { name: 'Senegal',             flag: '🇸🇳' },
   BEL: { name: 'Belgium',             flag: '🇧🇪' },
-  KOR: { name: 'South Korea',         flag: '🇰🇷' },
   USA: { name: 'United States',       flag: '🇺🇸' },
   BIH: { name: 'Bosnia & Herz.',      flag: '🇧🇦' },
   ESP: { name: 'Spain',               flag: '🇪🇸' },
   AUT: { name: 'Austria',             flag: '🇦🇹' },
   POR: { name: 'Portugal',            flag: '🇵🇹' },
-  GHA: { name: 'Ghana',               flag: '🇬🇭' },
-  SUI: { name: 'Switzerland',         flag: '🇨🇭' },
-  IRN: { name: 'Iran',                flag: '🇮🇷' },
-  EGY: { name: 'Egypt',               flag: '🇪🇬' },
-  AUS: { name: 'Australia',           flag: '🇦🇺' },
-  ARG: { name: 'Argentina',           flag: '🇦🇷' },
-  CPV: { name: 'Cape Verde',          flag: '🇨🇻' },
-  COL: { name: 'Colombia',            flag: '🇨🇴' },
   CRO: { name: 'Croatia',             flag: '🇭🇷' },
+  BRA: { name: 'Brazil',              flag: '🇧🇷' },
+  JPN: { name: 'Japan',               flag: '🇯🇵' },
+  SUI: { name: 'Switzerland',         flag: '🇨🇭' },
+  ALG: { name: 'Algeria',             flag: '🇩🇿' },
+  COL: { name: 'Colombia',            flag: '🇨🇴' },
+  GHA: { name: 'Ghana',               flag: '🇬🇭' },
+  AUS: { name: 'Australia',           flag: '🇦🇺' },
+  EGY: { name: 'Egypt',               flag: '🇪🇬' },
+  ARG: { name: 'Argentina',           flag: '🇦🇷' },
+  CPV: { name: 'Cabo Verde',          flag: '🇨🇻' },
+  COD: { name: 'DR Congo',            flag: '🇨🇩' },
 };
 
 // ─── ROUND OF 32 MATCHUPS (official confirmed order) ─────────────────────────
 // Bracket pairing: matches 1+2 feed R16 match 1, matches 3+4 feed R16 match 2, etc.
 const R32 = [
-  { id:'r32-01', label:'Match 1',  date:'Jun 28', t1:'CAN', t2:'RSA' },  // → R16-1 top
-  { id:'r32-02', label:'Match 2',  date:'Jun 29', t1:'BRA', t2:'JPN' },  // → R16-1 bot
+  // R16-A: Winner M1 vs Winner M2
+  { id:'r32-01', label:'Match 1',  date:'Jun 28', t1:'RSA', t2:'CAN' },  // → R16-1 top
+  { id:'r32-02', label:'Match 2',  date:'Jun 29', t1:'NED', t2:'MAR' },  // → R16-1 bot
+  // R16-B: Winner M3 vs Winner M4
   { id:'r32-03', label:'Match 3',  date:'Jun 29', t1:'GER', t2:'PAR' },  // → R16-2 top
-  { id:'r32-04', label:'Match 4',  date:'Jun 29', t1:'NED', t2:'MAR' },  // → R16-2 bot
-  { id:'r32-05', label:'Match 5',  date:'Jun 30', t1:'CIV', t2:'NOR' },  // → R16-3 top
-  { id:'r32-06', label:'Match 6',  date:'Jun 30', t1:'FRA', t2:'SWE' },  // → R16-3 bot
-  { id:'r32-07', label:'Match 7',  date:'Jun 30', t1:'MEX', t2:'ECU' },  // → R16-4 top
-  { id:'r32-08', label:'Match 8',  date:'Jul 1',  t1:'ENG', t2:'SEN' },  // → R16-4 bot
-  { id:'r32-09', label:'Match 9',  date:'Jul 1',  t1:'BEL', t2:'KOR' },  // → R16-5 top
-  { id:'r32-10', label:'Match 10', date:'Jul 1',  t1:'USA', t2:'BIH' },  // → R16-5 bot
-  { id:'r32-11', label:'Match 11', date:'Jul 2',  t1:'ESP', t2:'AUT' },  // → R16-6 top
-  { id:'r32-12', label:'Match 12', date:'Jul 2',  t1:'POR', t2:'GHA' },  // → R16-6 bot
-  { id:'r32-13', label:'Match 13', date:'Jul 2',  t1:'SUI', t2:'IRN' },  // → R16-7 top
-  { id:'r32-14', label:'Match 14', date:'Jul 3',  t1:'EGY', t2:'AUS' },  // → R16-7 bot
-  { id:'r32-15', label:'Match 15', date:'Jul 3',  t1:'ARG', t2:'CPV' },  // → R16-8 top
-  { id:'r32-16', label:'Match 16', date:'Jul 3',  t1:'COL', t2:'CRO' },  // → R16-8 bot
+  { id:'r32-04', label:'Match 4',  date:'Jun 30', t1:'FRA', t2:'SWE' },  // → R16-2 bot
+  // R16-C: Winner M5 vs Winner M6
+  { id:'r32-05', label:'Match 5',  date:'Jul 1',  t1:'BEL', t2:'SEN' },  // → R16-3 top
+  { id:'r32-06', label:'Match 6',  date:'Jul 2',  t1:'USA', t2:'BIH' },  // → R16-3 bot
+  // R16-D: Winner M7 vs Winner M8
+  { id:'r32-07', label:'Match 7',  date:'Jul 2',  t1:'ESP', t2:'AUT' },  // → R16-4 top
+  { id:'r32-08', label:'Match 8',  date:'Jul 3',  t1:'POR', t2:'CRO' },  // → R16-4 bot
+  // R16-E: Winner M9 vs Winner M10
+  { id:'r32-09', label:'Match 9',  date:'Jun 29', t1:'BRA', t2:'JPN' },  // → R16-5 top
+  { id:'r32-10', label:'Match 10', date:'Jun 30', t1:'CIV', t2:'NOR' },  // → R16-5 bot
+  // R16-F: Winner M11 vs Winner M12
+  { id:'r32-11', label:'Match 11', date:'Jul 1',  t1:'MEX', t2:'ECU' },  // → R16-6 top
+  { id:'r32-12', label:'Match 12', date:'Jul 1',  t1:'ENG', t2:'COD' },  // → R16-6 bot
+  // R16-G: Winner M13 vs Winner M14
+  { id:'r32-13', label:'Match 13', date:'Jul 3',  t1:'SUI', t2:'ALG' },  // → R16-7 top
+  { id:'r32-14', label:'Match 14', date:'Jul 4',  t1:'COL', t2:'GHA' },  // → R16-7 bot
+  // R16-H: Winner M15 vs Winner M16
+  { id:'r32-15', label:'Match 15', date:'Jul 3',  t1:'AUS', t2:'EGY' },  // → R16-8 top
+  { id:'r32-16', label:'Match 16', date:'Jul 4',  t1:'ARG', t2:'CPV' },  // → R16-8 bot
 ];
 
 const picks = {};
