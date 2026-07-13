@@ -1,402 +1,497 @@
+This is a complete, interactive HTML page that structures The YouTube Formula into chapters and sections, making it easy to read and navigate in English.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FIFA World Cup 2026 — Bracket Predictor</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap');
-  :root {
-    --gold: #C8972A; --gold-light: #F0C842; --dark: #0A0C14; --panel: #12151F;
-    --panel2: #1A1E2E; --border: #252A3A; --text: #E8EAF0; --muted: #5A607A;
-    --win-border: #2ECC71; --hover: #1E2438;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--dark); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
-  header {
-    background: linear-gradient(135deg, #0A0C14 0%, #0f1424 50%, #0A0C14 100%);
-    border-bottom: 1px solid var(--border); position: relative; overflow: hidden;
-  }
-  header::before {
-    content: ''; position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 50% -30%, rgba(200,151,42,0.18) 0%, transparent 70%);
-  }
-  .header-inner { max-width: 1600px; margin: 0 auto; padding: 28px 32px; display: flex; align-items: center; gap: 20px; }
-  .trophy-icon { font-size: 48px; filter: drop-shadow(0 0 18px rgba(200,151,42,0.7)); }
-  .header-text h1 { font-family: 'Bebas Neue', sans-serif; font-size: 42px; letter-spacing: 3px; color: var(--gold-light); line-height: 1; text-shadow: 0 0 30px rgba(200,151,42,0.4); }
-  .header-text p { font-size: 13px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
-  .header-badge { margin-left: auto; background: var(--gold); color: #000; font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 1.5px; padding: 6px 14px; border-radius: 4px; }
-  .progress-bar-wrap { background: var(--panel2); border-bottom: 1px solid var(--border); padding: 10px 32px; }
-  .progress-bar-inner { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; gap: 16px; }
-  .progress-label { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
-  .progress-track { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
-  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-light)); border-radius: 2px; transition: width 0.4s ease; }
-  .progress-pct { font-size: 12px; color: var(--gold); font-weight: 600; }
-  .round-nav { background: var(--panel); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-  .round-nav-inner { max-width: 1600px; margin: 0 auto; padding: 0 32px; display: flex; overflow-x: auto; }
-  .round-tab { padding: 16px 22px; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; transition: all 0.2s; user-select: none; }
-  .round-tab:hover { color: var(--text); }
-  .round-tab.active { color: var(--gold-light); border-bottom-color: var(--gold); }
-  .round-tab .badge { display: inline-block; background: var(--border); border-radius: 10px; font-size: 10px; padding: 1px 6px; margin-left: 6px; color: var(--muted); }
-  .round-tab.active .badge { background: rgba(200,151,42,0.2); color: var(--gold); }
-  main { max-width: 1600px; margin: 0 auto; padding: 32px; }
-  .round-section { display: none; }
-  .round-section.active { display: block; }
-  .round-header { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
-  .round-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 2px; color: var(--text); }
-  .round-header .line { flex: 1; height: 1px; background: linear-gradient(to right, var(--border), transparent); }
-  .round-header .count { font-size: 12px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
-  .match-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
-  .match-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: border-color 0.2s; }
-  .match-card:hover { border-color: var(--muted); }
-  .match-card.complete { border-color: rgba(200,151,42,0.3); }
-  .match-label { background: var(--panel2); border-bottom: 1px solid var(--border); padding: 8px 14px; font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
-  .match-date { font-size: 10px; color: rgba(200,151,42,0.7); }
-  .team-option { display: flex; align-items: center; gap: 12px; padding: 12px 14px; cursor: pointer; transition: background 0.15s; position: relative; }
-  .team-option:first-of-type { border-bottom: 1px solid var(--border); }
-  .team-option:hover { background: var(--hover); }
-  .team-option.selected { background: rgba(46,204,113,0.07); }
-  .team-option.selected::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--win-border); border-radius: 0 2px 2px 0; }
-  .team-option.loser { opacity: 0.35; }
-  .flag-emoji { width: 32px; font-size: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .team-name { flex: 1; font-size: 14px; font-weight: 500; color: var(--text); }
-  .team-option.selected .team-name { color: #fff; font-weight: 600; }
-  .team-option.tbd .team-name { color: var(--muted); font-style: italic; }
-  .radio-circle { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-  .team-option.selected .radio-circle { border-color: var(--win-border); background: var(--win-border); }
-  .radio-dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; display: none; }
-  .team-option.selected .radio-dot { display: block; }
-  .advance-banner { display: none; background: rgba(200,151,42,0.1); border: 1px solid rgba(200,151,42,0.3); border-radius: 8px; padding: 14px 20px; margin-bottom: 24px; font-size: 13px; color: var(--gold-light); align-items: center; gap: 10px; }
-  .advance-banner.show { display: flex; }
-  .advance-banner button { margin-left: auto; background: var(--gold); color: #000; border: none; border-radius: 5px; font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 1px; padding: 7px 16px; cursor: pointer; }
-  .advance-banner button:hover { background: var(--gold-light); }
-  #winner-section { display: none; text-align: center; padding: 60px 32px; animation: fadeUp 0.6s ease; }
-  @keyframes fadeUp { from { opacity:0; transform: translateY(30px); } to { opacity:1; transform: translateY(0); } }
-  .winner-trophy { font-size: 90px; margin-bottom: 20px; filter: drop-shadow(0 0 30px rgba(200,151,42,0.8)); }
-  .winner-label { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 5px; color: var(--gold); text-transform: uppercase; margin-bottom: 12px; }
-  .winner-flag-big { font-size: 80px; display: block; margin: 16px auto; }
-  .winner-name { font-family: 'Bebas Neue', sans-serif; font-size: 64px; letter-spacing: 4px; color: #fff; text-shadow: 0 0 40px rgba(200,151,42,0.5); }
-  .winner-sub { font-size: 14px; color: var(--muted); letter-spacing: 1px; margin-top: 12px; }
-  .confetti-line { display: flex; justify-content: center; gap: 10px; font-size: 28px; margin: 20px 0; animation: pulse 1.5s ease-in-out infinite; }
-  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
-  .btn-reset { background: transparent; border: 1px solid var(--border); color: var(--muted); font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: all 0.2s; margin-top: 28px; }
-  .btn-reset:hover { border-color: var(--gold); color: var(--gold); }
-  @media (max-width: 700px) {
-    .header-inner { padding: 20px 16px; } .header-text h1 { font-size: 28px; }
-    main { padding: 16px; } .match-grid { grid-template-columns: 1fr; }
-    .round-nav-inner { padding: 0 8px; } .round-tab { padding: 14px 12px; font-size: 11px; }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+  <title>The YouTube Formula – Interactive Reader</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+      background: #f6f4f0;
+      color: #1e1c1a;
+      line-height: 1.8;
+      padding: 0 0 40px;
+      transition: background 0.25s, color 0.25s;
+    }
+
+    /* dark mode */
+    body.dark {
+      background: #181a1d;
+      color: #e4e0da;
+    }
+
+    body.dark .container {
+      background: #23262b;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+    }
+
+    body.dark .chapter-card {
+      background: #2d3036;
+      border-color: #3e4249;
+    }
+
+    body.dark .chapter-card h3 {
+      color: #f0dbb0;
+    }
+
+    body.dark .chapter-card p {
+      color: #cbc6bd;
+    }
+
+    body.dark .nav-bar {
+      background: #23262b;
+      border-bottom: 1px solid #3a3e45;
+    }
+
+    body.dark .nav-bar button {
+      color: #ddd8d0;
+    }
+
+    body.dark .nav-bar button:hover {
+      background: #3a3e48;
+    }
+
+    body.dark .footer-note {
+      color: #999;
+    }
+
+    /* layout */
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 30px 28px 40px;
+      border-radius: 28px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+      transition: background 0.25s, box-shadow 0.25s;
+    }
+
+    /* top nav */
+    .nav-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 0 18px;
+      border-bottom: 1px solid #e2dcd2;
+      margin-bottom: 28px;
+      background: #ffffff;
+      transition: background 0.25s, border-color 0.25s;
+    }
+
+    .nav-left {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      align-items: center;
+    }
+
+    .nav-left button {
+      background: transparent;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 40px;
+      cursor: pointer;
+      color: #2d2a24;
+      transition: 0.15s;
+      font-family: inherit;
+    }
+
+    .nav-left button:hover {
+      background: #ece8e0;
+    }
+
+    .nav-left button.active {
+      background: #1e2b3c;
+      color: #fff;
+    }
+
+    body.dark .nav-left button.active {
+      background: #d6b17e;
+      color: #1a1c1f;
+    }
+
+    .theme-toggle {
+      background: #eae5dc;
+      border: none;
+      border-radius: 60px;
+      padding: 8px 18px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #1e1c1a;
+      transition: 0.2s;
+      font-family: inherit;
+    }
+
+    .theme-toggle:hover {
+      background: #d6cdbf;
+    }
+
+    body.dark .theme-toggle {
+      background: #3e424b;
+      color: #eee;
+    }
+
+    /* chapter cards */
+    .chapter-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-top: 12px;
+    }
+
+    .chapter-card {
+      background: #fcfaf7;
+      border-radius: 24px;
+      padding: 24px 26px 26px;
+      border: 1px solid #e9e2d8;
+      transition: 0.2s;
+      scroll-margin-top: 20px;
+    }
+
+    .chapter-card:hover {
+      border-color: #c9bcab;
+    }
+
+    .chapter-card h3 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: #0b2b3b;
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .chapter-card .badge {
+      font-size: 0.8rem;
+      font-weight: 500;
+      background: #d6cdbf;
+      color: #1e1a14;
+      padding: 2px 14px;
+      border-radius: 30px;
+      letter-spacing: 0.3px;
+    }
+
+    body.dark .chapter-card .badge {
+      background: #4d4f57;
+      color: #eee;
+    }
+
+    .chapter-card .meta {
+      font-size: 0.9rem;
+      color: #706a60;
+      margin-top: -4px;
+      margin-bottom: 14px;
+      border-bottom: 1px dashed #ddd6ca;
+      padding-bottom: 10px;
+    }
+
+    body.dark .chapter-card .meta {
+      color: #b0a89b;
+      border-bottom-color: #3f4249;
+    }
+
+    .chapter-card p {
+      font-size: 1.04rem;
+      color: #2c2822;
+      margin-bottom: 12px;
+    }
+
+    .chapter-card ul {
+      padding-left: 24px;
+      margin: 10px 0 14px;
+    }
+
+    .chapter-card ul li {
+      margin-bottom: 6px;
+    }
+
+    .chapter-card .highlight {
+      background: #f0ebe1;
+      padding: 12px 18px;
+      border-radius: 16px;
+      border-left: 4px solid #b89a7a;
+      margin: 18px 0 6px;
+      font-style: normal;
+    }
+
+    body.dark .chapter-card .highlight {
+      background: #2f333b;
+      border-left-color: #d6b17e;
+    }
+
+    /* footer */
+    .footer-note {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 0.95rem;
+      color: #6b655b;
+      border-top: 1px solid #e3dbcf;
+      padding-top: 28px;
+      letter-spacing: 0.3px;
+    }
+
+    body.dark .footer-note {
+      border-top-color: #3a3e45;
+    }
+
+    /* responsive */
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px 16px 30px;
+        border-radius: 20px;
+      }
+      .nav-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+      .nav-left {
+        justify-content: center;
+      }
+      .nav-left button {
+        font-size: 0.85rem;
+        padding: 5px 12px;
+      }
+      .chapter-card {
+        padding: 18px 16px 20px;
+      }
+      .chapter-card h3 {
+        font-size: 1.35rem;
+      }
+      .book-title {
+        font-size: 1.9rem;
+      }
+    }
+
+    /* smooth scroll */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* chapter anchor offset */
+    .chapter-card {
+      scroll-margin-top: 30px;
+    }
+  </style>
 </head>
 <body>
+  <div class="container" id="mainContainer">
 
-<header>
-  <div class="header-inner">
-    <div class="trophy-icon">🏆</div>
-    <div class="header-text">
-      <h1>FIFA World Cup 2026</h1>
-      <p>USA · Canada · Mexico &nbsp;·&nbsp; Bracket Predictor</p>
+    <!-- navigation -->
+    <div class="nav-bar">
+      <div class="nav-left">
+        <button class="active" data-target="chapter-1">Ch.1</button>
+        <button data-target="chapter-2">Ch.2</button>
+        <button data-target="chapter-3">Ch.3</button>
+        <button data-target="chapter-4">Ch.4</button>
+        <button data-target="chapter-5">Ch.5</button>
+        <button data-target="chapter-6">Ch.6</button>
+        <button data-target="chapter-7">Ch.7</button>
+        <button data-target="foreword">Foreword</button>
+      </div>
+      <button class="theme-toggle" id="themeToggle">🌙 Dark</button>
     </div>
-    <div class="header-badge">48 TEAMS</div>
-  </div>
-</header>
 
-<div class="progress-bar-wrap">
-  <div class="progress-bar-inner">
-    <span class="progress-label">Bracket completion</span>
-    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-    <span class="progress-pct" id="progressPct">0%</span>
-  </div>
-</div>
-
-<div class="round-nav">
-  <div class="round-nav-inner">
-    <div class="round-tab active" data-round="r32" onclick="showRound('r32')">Round of 32 <span class="badge" id="tab-badge-r32">0/16</span></div>
-    <div class="round-tab" data-round="r16" onclick="showRound('r16')">Round of 16 <span class="badge" id="tab-badge-r16">0/8</span></div>
-    <div class="round-tab" data-round="qf" onclick="showRound('qf')">Quarterfinals <span class="badge" id="tab-badge-qf">0/4</span></div>
-    <div class="round-tab" data-round="sf" onclick="showRound('sf')">Semifinals <span class="badge" id="tab-badge-sf">0/2</span></div>
-    <div class="round-tab" data-round="final" onclick="showRound('final')">Final <span class="badge" id="tab-badge-final">0/1</span></div>
-    <div class="round-tab" data-round="winner" onclick="showRound('winner')">🏆 Champion</div>
-  </div>
-</div>
-
-<main>
-  <div class="round-section active" id="section-r32">
-    <div class="round-header"><h2>Round of 32</h2><div class="line"></div><div class="count">16 Matches · Jun 28 – Jul 3</div></div>
-    <div class="advance-banner" id="banner-r32"><span>✅ All Round of 32 picks complete!</span><button onclick="showRound('r16')">Go to Round of 16 →</button></div>
-    <div class="match-grid" id="grid-r32"></div>
-  </div>
-  <div class="round-section" id="section-r16">
-    <div class="round-header"><h2>Round of 16</h2><div class="line"></div><div class="count">8 Matches</div></div>
-    <div class="advance-banner" id="banner-r16"><span>✅ All Round of 16 picks complete!</span><button onclick="showRound('qf')">Go to Quarterfinals →</button></div>
-    <div class="match-grid" id="grid-r16"></div>
-  </div>
-  <div class="round-section" id="section-qf">
-    <div class="round-header"><h2>Quarterfinals</h2><div class="line"></div><div class="count">4 Matches</div></div>
-    <div class="advance-banner" id="banner-qf"><span>✅ All Quarterfinal picks complete!</span><button onclick="showRound('sf')">Go to Semifinals →</button></div>
-    <div class="match-grid" id="grid-qf"></div>
-  </div>
-  <div class="round-section" id="section-sf">
-    <div class="round-header"><h2>Semifinals</h2><div class="line"></div><div class="count">2 Matches</div></div>
-    <div class="advance-banner" id="banner-sf"><span>✅ All Semifinal picks complete!</span><button onclick="showRound('final')">Go to the Final →</button></div>
-    <div class="match-grid" id="grid-sf"></div>
-  </div>
-  <div class="round-section" id="section-final">
-    <div class="round-header"><h2>The Final</h2><div class="line"></div><div class="count">MetLife Stadium · July 19</div></div>
-    <div class="advance-banner" id="banner-final"><span>✅ Champion selected!</span><button onclick="showRound('winner')">See Your Champion 🏆</button></div>
-    <div class="match-grid" id="grid-final" style="max-width:380px;"></div>
-  </div>
-  <div class="round-section" id="section-winner">
-    <div id="winner-section">
-      <div class="confetti-line">🎉 🥇 🌟 🥇 🎉</div>
-      <div class="winner-trophy">🏆</div>
-      <div class="winner-label">FIFA World Cup 2026 Champion</div>
-      <div class="winner-flag-big" id="winnerFlag"></div>
-      <div class="winner-name" id="winnerName">—</div>
-      <div class="winner-sub">USA · Canada · Mexico 2026</div>
-      <div class="confetti-line">🎊 ⭐ 🎊 ⭐ 🎊</div>
-      <button class="btn-reset" onclick="resetAll()">↩ Reset Bracket</button>
+    <!-- header -->
+    <div style="text-align: center; margin-bottom: 30px;">
+      <h1 style="font-size: 2.2rem; font-weight: 700; letter-spacing: -0.5px; color: #0b2b3b;">THE YOUTUBE FORMULA</h1>
+      <p style="font-size: 1.15rem; color: #4d463d; margin-top: 4px;">by Derral Eves · Foreword by MrBeast</p>
+      <p style="font-size: 1rem; color: #6b6256; margin-top: 2px;">How anyone can unlock the algorithm to drive views, build an audience, and grow revenue</p>
+      <div style="width: 80px; height: 3px; background: #b89a7a; margin: 18px auto 6px;"></div>
     </div>
-  </div>
-</main>
 
-<script>
-// ─── TEAMS ───────────────────────────────────────────────────────────────────
-const T = {
-  CAN: { name: 'Canada',              flag: '🇨🇦' },
-  RSA: { name: 'South Africa',        flag: '🇿🇦' },
-  BRA: { name: 'Brazil',              flag: '🇧🇷' },
-  JPN: { name: 'Japan',               flag: '🇯🇵' },
-  GER: { name: 'Germany',             flag: '🇩🇪' },
-  PAR: { name: 'Paraguay',            flag: '🇵🇾' },
-  NED: { name: 'Netherlands',         flag: '🇳🇱' },
-  MAR: { name: 'Morocco',             flag: '🇲🇦' },
-  CIV: { name: "Ivory Coast",         flag: '🇨🇮' },
-  NOR: { name: 'Norway',              flag: '🇳🇴' },
-  FRA: { name: 'France',              flag: '🇫🇷' },
-  SWE: { name: 'Sweden',              flag: '🇸🇪' },
-  MEX: { name: 'Mexico',              flag: '🇲🇽' },
-  ECU: { name: 'Ecuador',             flag: '🇪🇨' },
-  ENG: { name: 'England',             flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
-  SEN: { name: 'Senegal',             flag: '🇸🇳' },
-  BEL: { name: 'Belgium',             flag: '🇧🇪' },
-  USA: { name: 'United States',       flag: '🇺🇸' },
-  BIH: { name: 'Bosnia & Herz.',      flag: '🇧🇦' },
-  ESP: { name: 'Spain',               flag: '🇪🇸' },
-  AUT: { name: 'Austria',             flag: '🇦🇹' },
-  POR: { name: 'Portugal',            flag: '🇵🇹' },
-  CRO: { name: 'Croatia',             flag: '🇭🇷' },
-  BRA: { name: 'Brazil',              flag: '🇧🇷' },
-  JPN: { name: 'Japan',               flag: '🇯🇵' },
-  SUI: { name: 'Switzerland',         flag: '🇨🇭' },
-  ALG: { name: 'Algeria',             flag: '🇩🇿' },
-  COL: { name: 'Colombia',            flag: '🇨🇴' },
-  GHA: { name: 'Ghana',               flag: '🇬🇭' },
-  AUS: { name: 'Australia',           flag: '🇦🇺' },
-  EGY: { name: 'Egypt',               flag: '🇪🇬' },
-  ARG: { name: 'Argentina',           flag: '🇦🇷' },
-  CPV: { name: 'Cabo Verde',          flag: '🇨🇻' },
-  COD: { name: 'DR Congo',            flag: '🇨🇩' },
-};
+    <!-- CHAPTERS -->
+    <div class="chapter-grid">
 
-// ─── ROUND OF 32 MATCHUPS (official confirmed order) ─────────────────────────
-// Bracket pairing: matches 1+2 feed R16 match 1, matches 3+4 feed R16 match 2, etc.
-const R32 = [
-  // R16-A: Winner M1 vs Winner M2
-  { id:'r32-01', label:'Match 1',  date:'Jun 28', t1:'RSA', t2:'CAN' },  // → R16-1 top
-  { id:'r32-02', label:'Match 2',  date:'Jun 29', t1:'NED', t2:'MAR' },  // → R16-1 bot
-  // R16-B: Winner M3 vs Winner M4
-  { id:'r32-03', label:'Match 3',  date:'Jun 29', t1:'GER', t2:'PAR' },  // → R16-2 top
-  { id:'r32-04', label:'Match 4',  date:'Jun 30', t1:'FRA', t2:'SWE' },  // → R16-2 bot
-  // R16-C: Winner M5 vs Winner M6
-  { id:'r32-05', label:'Match 5',  date:'Jul 1',  t1:'BEL', t2:'SEN' },  // → R16-3 top
-  { id:'r32-06', label:'Match 6',  date:'Jul 2',  t1:'USA', t2:'BIH' },  // → R16-3 bot
-  // R16-D: Winner M7 vs Winner M8
-  { id:'r32-07', label:'Match 7',  date:'Jul 2',  t1:'ESP', t2:'AUT' },  // → R16-4 top
-  { id:'r32-08', label:'Match 8',  date:'Jul 3',  t1:'POR', t2:'CRO' },  // → R16-4 bot
-  // R16-E: Winner M9 vs Winner M10
-  { id:'r32-09', label:'Match 9',  date:'Jun 29', t1:'BRA', t2:'JPN' },  // → R16-5 top
-  { id:'r32-10', label:'Match 10', date:'Jun 30', t1:'CIV', t2:'NOR' },  // → R16-5 bot
-  // R16-F: Winner M11 vs Winner M12
-  { id:'r32-11', label:'Match 11', date:'Jul 1',  t1:'MEX', t2:'ECU' },  // → R16-6 top
-  { id:'r32-12', label:'Match 12', date:'Jul 1',  t1:'ENG', t2:'COD' },  // → R16-6 bot
-  // R16-G: Winner M13 vs Winner M14
-  { id:'r32-13', label:'Match 13', date:'Jul 3',  t1:'SUI', t2:'ALG' },  // → R16-7 top
-  { id:'r32-14', label:'Match 14', date:'Jul 4',  t1:'COL', t2:'GHA' },  // → R16-7 bot
-  // R16-H: Winner M15 vs Winner M16
-  { id:'r32-15', label:'Match 15', date:'Jul 3',  t1:'AUS', t2:'EGY' },  // → R16-8 top
-  { id:'r32-16', label:'Match 16', date:'Jul 4',  t1:'ARG', t2:'CPV' },  // → R16-8 bot
-];
+      <!-- Foreword -->
+      <div class="chapter-card" id="foreword">
+        <h3>Foreword <span class="badge">by MrBeast</span></h3>
+        <div class="meta">Jimmy Donaldson · 2021</div>
+        <p>Derral Eves is the person who taught me and countless other creators the path to YouTube success. This book is the <strong>formula</strong> — the real, behind-the-scenes system that drives views, builds loyal audiences, and turns passion into profit. If you follow what's inside, you'll never look at YouTube the same way.</p>
+        <div class="highlight">“Derral doesn't guess. He knows the algorithm because he helped shape it.” — MrBeast</div>
+      </div>
 
-const picks = {};
+      <!-- Chapter 1 -->
+      <div class="chapter-card" id="chapter-1">
+        <h3>1. The Algorithm Reality <span class="badge">core</span></h3>
+        <div class="meta">Understanding how YouTube really works</div>
+        <p>YouTube’s algorithm is <strong>not magic</strong> — it's a system that prioritizes <em>viewer satisfaction</em>. Derral explains that the algorithm promotes videos based on what people <strong>click on</strong>, how long they <strong>watch</strong>, and how they <strong>engage</strong>. The key is to focus on giving viewers what they want, not chasing vanity metrics.</p>
+        <ul>
+          <li><strong>CTR (Click-Through Rate):</strong> the first gatekeeper.</li>
+          <li><strong>Watch time & average view duration:</strong> the most powerful signals.</li>
+          <li><strong>Session time:</strong> how your video keeps people on YouTube.</li>
+        </ul>
+        <div class="highlight">💡 “Make videos that viewers <em>choose</em> to watch, not videos that YouTube <em>has</em> to promote.”</div>
+      </div>
 
-function getIds(round) {
-  if (round === 'r32') return R32.map(m => m.id);
-  const counts = { r16:8, qf:4, sf:2, final:1 };
-  return Array.from({length: counts[round]}, (_, i) => `${round}-${String(i+1).padStart(2,'0')}`);
-}
+      <!-- Chapter 2 -->
+      <div class="chapter-card" id="chapter-2">
+        <h3>2. Finding Your Niche <span class="badge">strategy</span></h3>
+        <div class="meta">Pick a lane that fuels both passion and demand</div>
+        <p>Successful channels are built on a <strong>specific niche</strong>. You need to choose a topic you're genuinely excited about — and that has an audience. Define your target viewer: their age, interests, problems, and what they search for.</p>
+        <ul>
+          <li><strong>Passion + demand = sustainable growth.</strong></li>
+          <li><strong>Differentiate:</strong> don't copy, innovate.</li>
+          <li><strong>Micro-niches</strong> often have the highest engagement.</li>
+        </ul>
+        <div class="highlight">🔍 “Your niche is your compass. Without it, you're wandering in the dark.”</div>
+      </div>
 
-function prevRound(r) { return { r16:'r32', qf:'r16', sf:'qf', final:'sf' }[r]; }
-function nextRound(r) { return { r32:'r16', r16:'qf', qf:'sf', sf:'final' }[r]; }
+      <!-- Chapter 3 -->
+      <div class="chapter-card" id="chapter-3">
+        <h3>3. Video Structure That Hooks <span class="badge">craft</span></h3>
+        <div class="meta">The anatomy of a high-retention video</div>
+        <p>Every video needs a <strong>powerful hook</strong> (first 5 seconds) that stops the scroll. Then a clear, engaging story or message, and a <strong>call to action</strong> (subscribe, comment, watch next). Derral emphasises that <strong>quality</strong> and <strong>pace</strong> are equally important — cut the fluff, keep it moving.</p>
+        <ul>
+          <li><strong>Hook:</strong> surprise, curiosity, or bold statement.</li>
+          <li><strong>Body:</strong> deliver value, tell a story, solve a problem.</li>
+          <li><strong>Ending:</strong> CTA + suggest next video.</li>
+        </ul>
+        <div class="highlight">⚡ “The first 5 seconds decide if your video lives or dies.”</div>
+      </div>
 
-// ─── BUILD ───────────────────────────────────────────────────────────────────
-function buildR32() {
-  const grid = document.getElementById('grid-r32');
-  grid.innerHTML = '';
-  R32.forEach(m => grid.appendChild(makeCard(m.id, m.label, m.date, m.t1, m.t2, 'r32')));
-}
+      <!-- Chapter 4 -->
+      <div class="chapter-card" id="chapter-4">
+        <h3>4. Thumbnail & Title Power <span class="badge">click</span></h3>
+        <div class="meta">The two most important pieces of real estate</div>
+        <p>Your <strong>thumbnail</strong> is the #1 driver of clicks. Use contrasting colors, expressive faces, and minimal, bold text. Your <strong>title</strong> should spark curiosity while being clear. Examples: “Don't Make This Mistake” or “How I Got 1M Views in 5 Minutes”.</p>
+        <ul>
+          <li><strong>Thumbnail:</strong> high contrast, emotion, simplicity.</li>
+          <li><strong>Title:</strong> curiosity gap + benefit.</li>
+          <li><strong>Test and iterate:</strong> small changes can double CTR.</li>
+        </ul>
+        <div class="highlight">🎯 “If they don't click, they don't watch. Thumbnail is everything.”</div>
+      </div>
 
-function buildLater() {
-  ['r16','qf','sf','final'].forEach(round => {
-    const grid = document.getElementById('grid-' + round);
-    grid.innerHTML = '';
-    const prev = prevRound(round);
-    const prevIds = getIds(prev);
-    getIds(round).forEach((mid, i) => {
-      const t1 = picks[prevIds[i*2]] || null;
-      const t2 = picks[prevIds[i*2+1]] || null;
-      grid.appendChild(makeCard(mid, `Match ${i+1}`, '', t1, t2, round));
-    });
-  });
-}
+      <!-- Chapter 5 -->
+      <div class="chapter-card" id="chapter-5">
+        <h3>5. Signaling the Algorithm <span class="badge">data</span></h3>
+        <div class="meta">How to send the right signals to YouTube</div>
+        <p>YouTube pays close attention to how viewers behave at the <strong>start, middle, and end</strong> of your video. To increase <strong>watch time</strong> and <strong>average view duration</strong>, keep your video engaging throughout, remove dead air, and guide viewers to your next video (via end screens and cards).</p>
+        <ul>
+          <li><strong>Retention curve:</strong> keep it as flat as possible.</li>
+          <li><strong>Pattern interrupts:</strong> change scenes, angles, or topics.</li>
+          <li><strong>End screens</strong> boost session time.</li>
+        </ul>
+        <div class="highlight">📈 “The algorithm rewards videos that keep people watching — not just clicking.”</div>
+      </div>
 
-function makeCard(matchId, label, date, t1Code, t2Code, round) {
-  const card = document.createElement('div');
-  card.className = 'match-card' + (picks[matchId] ? ' complete' : '');
-  card.id = 'card-' + matchId;
-  card.innerHTML = `
-    <div class="match-label">
-      <span>${label}</span>
-      ${date ? `<span class="match-date">${date}</span>` : ''}
+      <!-- Chapter 6 -->
+      <div class="chapter-card" id="chapter-6">
+        <h3>6. Building a Community <span class="badge">audience</span></h3>
+        <div class="meta">From viewers to a loyal tribe</div>
+        <p>Views alone aren't enough — you need to build a <strong>community</strong>. Post consistently, reply to comments, and make videos that answer your viewers' questions. When people feel like they belong, they'll share your content and become your biggest advocates.</p>
+        <ul>
+          <li><strong>Consistency</strong> builds trust.</li>
+          <li><strong>Engagement</strong> fuels the algorithm.</li>
+          <li><strong>Community posts & polls</strong> deepen connection.</li>
+        </ul>
+        <div class="highlight">❤️ “Your audience is not a number — they're people who chose to spend time with you.”</div>
+      </div>
+
+      <!-- Chapter 7 -->
+      <div class="chapter-card" id="chapter-7">
+        <h3>7. Growing Revenue <span class="badge">monetize</span></h3>
+        <div class="meta">Beyond AdSense — multiple income streams</div>
+        <p>YouTube ad revenue is just the beginning. Derral outlines <strong>sponsorships, merchandise, Patreon, affiliate marketing, and digital products</strong>. The key is to <strong>trust your audience</strong> — they want to support you if you provide real value.</p>
+        <ul>
+          <li><strong>Sponsorships:</strong> align with your niche.</li>
+          <li><strong>Merch & digital products:</strong> high margin, direct connection.</li>
+          <li><strong>Memberships/Patreon:</strong> recurring revenue.</li>
+        </ul>
+        <div class="highlight">💰 “Monetization is a byproduct of trust and value. Get those right, and the money follows.”</div>
+      </div>
+
+      <!-- conclusion / epilogue -->
+      <div class="chapter-card" id="conclusion" style="border-color: #b89a7a;">
+        <h3>Final Word <span class="badge">mindset</span></h3>
+        <div class="meta">The formula works — if you work it</div>
+        <p>Derral Eves reminds us that there's no shortcut to YouTube success. But with the <strong>right formula</strong> and <strong>consistent effort</strong>, anyone can grow their channel. The most important step: <strong>start</strong>, experiment, and keep learning.</p>
+        <div class="highlight">🚀 “The algorithm isn't against you — it's waiting for you to give it what it wants: great content that viewers love.”</div>
+      </div>
+
+    </div> <!-- end chapter-grid -->
+
+    <div class="footer-note">
+      📘 Interactive edition · Based on <em>The YouTube Formula</em> by Derral Eves · Wiley
     </div>
-    ${row(matchId, t1Code, round)}
-    ${row(matchId, t2Code, round)}`;
-  return card;
-}
+  </div> <!-- end container -->
 
-function row(matchId, code, round) {
-  if (!code) {
-    return `<div class="team-option tbd">
-      <div class="flag-emoji">⬜</div>
-      <span class="team-name">TBD</span>
-      <div class="radio-circle"><div class="radio-dot"></div></div>
-    </div>`;
-  }
-  const team = T[code];
-  const sel = picks[matchId] === code;
-  const los = picks[matchId] && !sel;
-  return `<div class="team-option ${sel?'selected':''} ${los?'loser':''}"
-    data-code="${code}" onclick="pick('${matchId}','${code}','${round}')">
-    <div class="flag-emoji">${team.flag}</div>
-    <span class="team-name">${team.name}</span>
-    <div class="radio-circle"><div class="radio-dot"></div></div>
-  </div>`;
-}
+  <script>
+    (function() {
+      const themeToggle = document.getElementById('themeToggle');
+      const body = document.body;
 
-// ─── PICK ────────────────────────────────────────────────────────────────────
-function pick(matchId, code, round) {
-  picks[matchId] = code;
+      // dark mode toggle
+      themeToggle.addEventListener('click', function() {
+        body.classList.toggle('dark');
+        if (body.classList.contains('dark')) {
+          themeToggle.textContent = '☀️ Light';
+        } else {
+          themeToggle.textContent = '🌙 Dark';
+        }
+      });
 
-  // Refresh this card's visuals
-  const card = document.getElementById('card-' + matchId);
-  if (card) {
-    card.querySelectorAll('.team-option[data-code]').forEach(el => {
-      el.classList.toggle('selected', el.dataset.code === code);
-      el.classList.toggle('loser', el.dataset.code !== code);
-    });
-    card.classList.add('complete');
-  }
+      // navigation buttons - scroll to chapter
+      const navButtons = document.querySelectorAll('.nav-left button');
+      navButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          const targetId = this.getAttribute('data-target');
+          if (!targetId) return;
 
-  // Propagate to next round
-  const nr = nextRound(round);
-  if (!nr) { if (round === 'final') revealWinner(code); return; }
+          // remove active from all
+          navButtons.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
 
-  const allIds = getIds(round);
-  const idx = allIds.indexOf(matchId);
-  const nextIdx = Math.floor(idx / 2);
-  const nextId = `${nr}-${String(nextIdx+1).padStart(2,'0')}`;
-  const nrPrevIds = getIds(round); // same as allIds
-  const t1 = picks[nrPrevIds[nextIdx*2]] || null;
-  const t2 = picks[nrPrevIds[nextIdx*2+1]] || null;
+          const targetElement = document.getElementById(targetId);
+          if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
 
-  // If prior winner in next round no longer valid, cascade clear
-  if (picks[nextId] && picks[nextId] !== t1 && picks[nextId] !== t2) {
-    cascadeClear(nextId, nr);
-  }
+      // highlight active nav on scroll (optional, but nice)
+      const chapterCards = document.querySelectorAll('.chapter-card');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            navButtons.forEach(btn => {
+              btn.classList.remove('active');
+              if (btn.getAttribute('data-target') === id) {
+                btn.classList.add('active');
+              }
+            });
+          }
+        });
+      }, { threshold: 0.4 });
 
-  const grid = document.getElementById('grid-' + nr);
-  let existing = document.getElementById('card-' + nextId);
-  const newCard = makeCard(nextId, `Match ${nextIdx+1}`, '', t1, t2, nr);
-  if (existing) existing.replaceWith(newCard);
-  else grid.appendChild(newCard);
+      chapterCards.forEach(card => observer.observe(card));
 
-  updateProgress();
-  checkBanners();
-}
+      // also observe foreword
+      const forewordEl = document.getElementById('foreword');
+      if (forewordEl) observer.observe(forewordEl);
 
-function cascadeClear(matchId, round) {
-  delete picks[matchId];
-  const nr = nextRound(round);
-  if (!nr) return;
-  const allIds = getIds(round);
-  const idx = allIds.indexOf(matchId);
-  const nextId = `${nr}-${String(Math.floor(idx/2)+1).padStart(2,'0')}`;
-  if (picks[nextId]) cascadeClear(nextId, nr);
-}
+    })();
+  </script>
 
-function revealWinner(code) {
-  const team = T[code];
-  document.getElementById('winnerFlag').textContent = team.flag;
-  document.getElementById('winnerName').textContent = team.name;
-  document.getElementById('winner-section').style.display = 'block';
-}
-
-// ─── UI ──────────────────────────────────────────────────────────────────────
-function showRound(round) {
-  if (['r16','qf','sf','final'].includes(round)) buildLater();
-  document.querySelectorAll('.round-section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.round-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('section-' + round).classList.add('active');
-  document.querySelector(`[data-round="${round}"]`).classList.add('active');
-  if (round === 'winner') {
-    const w = picks['final-01'];
-    document.getElementById('winner-section').style.display = 'block';
-    if (w) revealWinner(w);
-    else { document.getElementById('winnerFlag').textContent = '❓'; document.getElementById('winnerName').textContent = 'Pick the Final first!'; }
-  }
-}
-
-function updateProgress() {
-  const total = 31;
-  const done = Object.keys(picks).length;
-  const pct = Math.round(done / total * 100);
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressPct').textContent = pct + '%';
-  const rounds = ['r32','r16','qf','sf','final'];
-  const totals = [16,8,4,2,1];
-  rounds.forEach((r,i) => {
-    document.getElementById('tab-badge-'+r).textContent = `${getIds(r).filter(id=>picks[id]).length}/${totals[i]}`;
-  });
-}
-
-function checkBanners() {
-  [['r32',16],['r16',8],['qf',4],['sf',2],['final',1]].forEach(([r,t]) => {
-    const done = getIds(r).filter(id=>picks[id]).length;
-    document.getElementById('banner-'+r).classList.toggle('show', done===t);
-  });
-}
-
-function resetAll() {
-  Object.keys(picks).forEach(k => delete picks[k]);
-  buildR32(); buildLater(); updateProgress(); checkBanners();
-  document.getElementById('winner-section').style.display = 'none';
-  showRound('r32');
-}
-
-// ─── INIT ────────────────────────────────────────────────────────────────────
-buildR32();
-buildLater();
-updateProgress();
-</script>
 </body>
 </html>
+```
