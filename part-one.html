@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Part One – The YouTube Formula</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        :root {
+            --bg: #f9f7f4;
+            --surface: #ffffff;
+            --text: #1e1c1a;
+            --muted: #5a554e;
+            --border: #e5dfd7;
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+            --radius: 20px;
+            --font: 'Georgia', 'Times New Roman', serif;
+            --sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --accent: #b89a7a;
+            --accent2: #7d5f44;
+            --highlight-yellow: #fcf3b3;
+            --highlight-pink: #fbc8d5;
+            --highlight-active-yellow: #fce83a;
+            --highlight-active-pink: #f58b9f;
+        }
+        .dark {
+            --bg: #191b1f;
+            --surface: #24282e;
+            --text: #e4dfd8;
+            --muted: #aea79b;
+            --border: #3a3f47;
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+            --highlight-yellow: #5a4f2a;
+            --highlight-pink: #5a2f3a;
+            --highlight-active-yellow: #c4b038;
+            --highlight-active-pink: #c45a7a;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            line-height: 1.8;
+            transition: background 0.3s, color 0.3s;
+            padding: 0 16px 60px;
+        }
+
+        .reader {
+            max-width: 860px;
+            margin: 0 auto;
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 28px 32px 50px;
+            transition: background 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+
+        /* top bar */
+        .top-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding-bottom: 18px;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 28px;
+            position: sticky;
+            top: 0;
+            background: var(--surface);
+            z-index: 100;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .top-bar .logo {
+            font-family: var(--sans);
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: -0.3px;
+            color: var(--accent2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .top-bar .logo a {
+            color: var(--accent2);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .top-bar .logo a:hover {
+            text-decoration: underline;
+        }
+        .top-bar .logo span {
+            color: var(--text);
+            font-weight: 400;
+        }
+        .top-bar .actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+        }
+        .top-bar button,
+        .top-bar .toggle-btn {
+            background: var(--border);
+            border: none;
+            padding: 5px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            font-family: var(--sans);
+            cursor: pointer;
+            color: var(--text);
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .top-bar button:hover,
+        .top-bar .toggle-btn:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+        .dark .top-bar button:hover,
+        .dark .top-bar .toggle-btn:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+        .top-bar .highlight-tools {
+            display: flex;
+            gap: 3px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .top-bar .highlight-tools button {
+            padding: 3px 8px;
+            font-size: 0.6rem;
+        }
+
+        /* highlight classes */
+        .hl-yellow {
+            background: var(--highlight-yellow) !important;
+            border-radius: 3px;
+            padding: 0 2px;
+            transition: background 0.15s;
+            cursor: pointer;
+        }
+        .hl-pink {
+            background: var(--highlight-pink) !important;
+            border-radius: 3px;
+            padding: 0 2px;
+            transition: background 0.15s;
+            cursor: pointer;
+        }
+        .hl-yellow.active-hl {
+            background: var(--highlight-active-yellow) !important;
+        }
+        .hl-pink.active-hl {
+            background: var(--highlight-active-pink) !important;
+        }
+        .hl-yellow:hover,
+        .hl-pink:hover {
+            filter: brightness(0.85);
+        }
+
+        .progress-wrap {
+            width: 100%;
+            height: 4px;
+            background: var(--border);
+            border-radius: 4px;
+            margin: 12px 0 6px;
+            overflow: hidden;
+        }
+        .progress-wrap .bar {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            border-radius: 4px;
+            transition: width 0.2s;
+        }
+
+        .toc-toggle {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 5px 14px;
+            border-radius: 40px;
+            font-family: var(--sans);
+            font-weight: 600;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .toc-toggle:hover {
+            background: var(--accent2);
+        }
+
+        .toc-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+            justify-content: flex-start;
+            align-items: flex-start;
+            padding: 20px;
+        }
+        .toc-overlay.open {
+            display: flex;
+        }
+        .toc-panel {
+            background: var(--surface);
+            max-width: 400px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: var(--radius);
+            padding: 28px 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            transition: background 0.3s;
+        }
+        .toc-panel h2 {
+            font-family: var(--sans);
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+        }
+        .toc-panel ul {
+            list-style: none;
+            padding: 0;
+        }
+        .toc-panel li {
+            margin-bottom: 6px;
+        }
+        .toc-panel a {
+            display: block;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-family: var(--sans);
+            font-size: 0.9rem;
+            color: var(--text);
+            transition: 0.15s;
+            text-decoration: none;
+        }
+        .toc-panel a:hover {
+            background: var(--border);
+            text-decoration: none;
+        }
+        .toc-panel .close-toc {
+            float: right;
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            line-height: 1;
+            cursor: pointer;
+            color: var(--muted);
+        }
+
+        .chapter {
+            scroll-margin-top: 80px;
+            margin-bottom: 48px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+        }
+        .chapter:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .chapter .chap-num {
+            font-family: var(--sans);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .chapter h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin: 6px 0 12px;
+            color: var(--text);
+        }
+        .chapter h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 28px 0 12px;
+            color: var(--text);
+        }
+        .chapter h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 22px 0 10px;
+            color: var(--text);
+        }
+        .chapter h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 18px 0 8px;
+            color: var(--text);
+        }
+        .chapter p {
+            margin-bottom: 1.2rem;
+            font-size: 1.05rem;
+        }
+        .chapter blockquote {
+            border-left: 4px solid var(--accent);
+            padding: 12px 20px;
+            margin: 20px 0;
+            background: var(--bg);
+            border-radius: 0 12px 12px 0;
+            font-style: italic;
+            color: var(--muted);
+        }
+        .chapter blockquote strong {
+            color: var(--text);
+        }
+        .chapter ul,
+        .chapter ol {
+            margin: 12px 0 20px 28px;
+        }
+        .chapter li {
+            margin-bottom: 6px;
+            font-size: 1.02rem;
+        }
+        .chapter .highlight-box {
+            background: var(--bg);
+            padding: 16px 22px;
+            border-radius: 16px;
+            border-left: 4px solid var(--accent);
+            margin: 20px 0;
+        }
+
+        .footer-note {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+            padding-top: 28px;
+            font-family: var(--sans);
+        }
+
+        @media (max-width: 700px) {
+            .reader {
+                padding: 16px 16px 30px;
+                border-radius: 16px;
+            }
+            .top-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+                position: relative;
+            }
+            .top-bar .actions {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .chapter h1 {
+                font-size: 1.6rem;
+            }
+            .chapter h2 {
+                font-size: 1.3rem;
+            }
+            .chapter p {
+                font-size: 0.98rem;
+            }
+            .toc-panel {
+                max-width: 100%;
+                margin: 10px;
+                padding: 20px 16px;
+            }
+        }
+        @media (max-width: 450px) {
+            .top-bar .logo {
+                font-size: 0.85rem;
+            }
+            .top-bar .highlight-tools button {
+                font-size: 0.55rem;
+                padding: 2px 6px;
+            }
+            .chapter h1 {
+                font-size: 1.3rem;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent2);
+        }
+    </style>
+</head>
+<body>
+    <div class="reader" id="reader">
+
+        <!-- TOP BAR -->
+        <div class="top-bar" id="topBar">
+            <div class="logo">
+                <a href="index.html">← Home</a>
+                <span>|</span>
+                <span>Part One</span>
+            </div>
+            <div class="actions">
+                <button class="toc-toggle" id="tocToggle">📑 Contents</button>
+                <button class="toggle-btn" id="themeToggle">🌙 Dark</button>
+                <button class="toggle-btn" id="exportBtn" style="background:var(--accent);color:#fff;">📤 Export</button>
+                <button class="toggle-btn" id="clearAllBtn" style="background:#d95b5b;color:#fff;">✕ Clear</button>
+                <div class="highlight-tools">
+                    <button id="hlYellow" style="background:#fce83a;color:#1e1c1a;">🟡 Yellow</button>
+                    <button id="hlPink" style="background:#f58b9f;color:#1e1c1a;">🩷 Pink</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- progress -->
+        <div class="progress-wrap"><div class="bar" id="progressBar"></div></div>
+
+        <!-- TOC OVERLAY -->
+        <div class="toc-overlay" id="tocOverlay">
+            <div class="toc-panel">
+                <button class="close-toc" id="tocClose">✕</button>
+                <h2>📑 Part One Contents</h2>
+                <ul>
+                    <li><a href="#ch-foreword">Foreword</a></li>
+                    <li><a href="#ch-introduction">Introduction</a></li>
+                    <li><a href="#ch-1">1. Try, Fail, Analyze, Adjust</a></li>
+                    <li><a href="#ch-2">2. The YouTube Ecosystem</a></li>
+                    <li><a href="#ch-3">3. The YouTube AI</a></li>
+                    <li><a href="#ch-4">4. The Algorithm Breakdown</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ===== CONTENT ===== -->
+        <div id="content">
+
+            <!-- FOREWORD -->
+            <div class="chapter" id="ch-foreword" data-chapter="foreword">
+                <div class="chap-num">Foreword</div>
+                <h1>Foreword</h1>
+                <p><strong>by MrBeast (Jimmy Donaldson)</strong></p>
+                <p>Everyone should have a YouTube channel. Literally everyone, but especially brands. When I see brands that don't have a presence on YouTube, I think they're insane. It's unfathomable that anyone isn't capitalizing on the opportunity there. It's the most coveted job in America, and with good reason. It is quite literally a gold mine.</p>
+                <p>When I was a kid, I watched YouTube all the time. It was always my dream job. I didn't want to be an astronaut or a doctor—I couldn't envision a world where I wasn't a YouTuber. I started my channel in 2012 and only got 40 subscribers my first year. Now I have one of the fastest growing channels in the world. I gained more than 15 million subscribers in 2019 alone with just over 4 billion video views. And it's still growing every day.</p>
+                <p>If you are just getting started on YouTube, do not expect to pull any type of viewership in your first year. If this isn't something you can accept, don't start. But if you can, then you need to do this: make 100 videos. It doesn't matter what they are because they will be terrible, but do something you like doing. Your first 10 videos will be garbage. Then make 10 more. These will also be garbage, and so will the next 10. But eventually, things will start to improve. You'll get better little by little. The best way to improve your content is to make content and see what people like.</p>
+                <p>Then you'll notice something with your 101st video. It will be in a whole different league from your first video. You will still be a long way from good content, but it will be better than your first video was.</p>
+                <p>It took me hundreds of videos over several years before I got good at it. I had been making YouTube videos for two years and still didn't make good quality videos, even though I thought they were good at the time. I was like so many creators: I thought the algorithm hated me because I wasn't getting subscribers and views. But in reality, my content wasn't good enough. In fact, my videos were horrible, like most YouTube videos are. Most YouTubers have their priorities backward. They spend all their time thinking about the algorithm in their first hundred videos when they should really be thinking about how to make better content geared toward the viewer.</p>
+                <p>Unless you're the rare YouTuber who has created content professionally, you're probably average (at best) at making content. You don't go from entertaining nobody to entertaining millions in a day. It's hard work and a slow progressive workup, and it should be. Because if you got millions of viewers overnight, you wouldn't know how to handle them.</p>
+                <p>Every video is your competitor, so you have to keep putting in the effort to keep your content relevant and competitive. Viewers have to pick between videos every time they go to YouTube, and they'll choose the better video without a second thought. Make your video the better video.</p>
+                <p>If a video from your channel from six months ago doesn't make you want to barf because of how much better you are at making content now, you're doing it wrong. I can't even stand watching my videos from six months ago because I am so much better at making content now. I can see how bad my old videos are. They could have been so much better! I'm depressed even thinking about those videos.</p>
+                <p>There is a huge opportunity on YouTube for brands. If every brand knew what I know, they could get a hundred times the viewership they get on television for the same cost. They should be giving creators like me their advertising budget to make YouTube videos around their brand. I'll give you an example. If I was Coca-Cola, I could build a pyramid of a million Coca-Cola cans. Or I could make a video called, "I Filled My Friend's House with a Million Cans of Coca-Cola." These are both banger ideas that would get a ton of views if done right. (This was free, Coca-Cola; next time you can pay me, lol.) Videos like these could lead to millions upon millions more return than TV-spends, and it's exponentially cheaper. And seriously, who really watches TV commercials anyway. Everyone picks up their phones during commercials.</p>
+                <p>If brands want to get real visibility, they have to get off of TV. What do you think people do—especially anyone under the age of 30—when the ads start rolling on TV? They pull out their phones and quit paying attention! They're not watching your commercial! Their attention has been moved to Twitter. SnapChat. YouTube. TikTok. Tweets spike during TV commercials. And people don't put their phones down until the commercials are over and their show or sporting event comes back on. Three times fewer people skip a brand deal on YouTube than they do on TV, because people are usually watching from their phones. They don't have a second phone to grab when they come across an ad or brand deal on YouTube, so they watch it. And they're watching a YouTuber they watch all the time, so they are also less likely to skip because they trust these YouTubers.</p>
+                <p>I have more eyeballs on my content every week than the Super Bowl. And I have a personal connection with my viewers who have built trust in me. This audience trust value is worth so much more than an impersonal celebrity or athlete appearance in a TV commercial. Brands shell out more than $5 million for 30 seconds crammed in with a bunch of other ads during the Super Bowl. With YouTubers like me, you could get 10 to 15 minutes of undivided attention centered on your brand for way cheaper. Then you can get the viewers to go watch more videos and interact with your brand in other ways if you're really smart about it. It's a no-brainer. You're quite literally insane if you're not capitalizing on the opportunity here.</p>
+                <p>Business execs think they know more than the YouTuber, especially if the YouTuber is very young. They want to control their integration, giving YouTubers a list of talking points to read verbatim with a call to action at the end. While this works to an extent, brands would convert exponentially more and see greater brand awareness and exposure if they let the YouTubers be themselves. A brand <em>should</em> say, "Here's a bunch of money, do what you do to connect with your viewers . . . as you've done on literally hundreds of videos with hundreds of millions of views. Do what you think would work best to get our brand talked about or our product sold. We trust you."</p>
+                <p>Brands who give the creative license to YouTubers and let them talk naturally like they normally would with their audience are getting more brand exposure and ROI than they could in any other way, guaranteed. And they should quit focusing on views but on what kind of impression they left. Will they remember you? Or will they hear another sleazy sales pitch?</p>
+                <p>Let me give you an example of the power of a YouTuber. I created an app called Finger On the App. I announced on my Instagram, Twitter, and SnapChat that everyone who downloaded and put their "finger on the app" at a certain time would have the chance to win $25,000. All you had to do was be the last person with your finger still on the app. The app was only available on iPhones and only in America. Even with these limitations, and without even trying, I had 1.5 million people install the app. I hadn't even promoted it on my YouTube channel, which at the time had more than 37 million subscribers. In contrast, a newcomer to the mobile video world, Quibi, launched around the same time as my app, but they had a $1.7 billion budget. Guess how many installs they got? Only 300,000 on the first day.</p>
+                <p>Finger On the App was inherently cool, so people talked about it. It naturally went viral. This is how businesses should pitch things. Change your mentality from wanting to get the most views to wanting to be the most talked about. My app was trending everywhere. I created a social footprint. And it all happened because I owned the app myself and had the control to spread the message my way. Brands come along and think they know better, but they would be so much more successful if they let YouTubers do what they do best. We know how to go viral. We know this digital world inherently because it's what we've lived and breathed our whole lives. We know how to get your brand talked about naturally. This is way more powerful than a pointless view.</p>
+                <p>YouTube isn't going anywhere. Google's parent company Alphabet and Google's Android operating system funnel so much crazy traffic to Google-owned YouTube. These companies have so much power and an unfathomable amount of cash that YouTube can't be a fad because of this. It's worth putting effort into something with such secure staying power. A lot of YouTube content is subpar now, but people will start to figure it out and it will be more competitive and expensive as time goes on. Figure it out now.</p>
+                <p>If you picked up this book, it's because you're already on YouTube or you are thinking about being on YouTube. Hopefully I've helped you understand that you absolutely should be on YouTube. You'd be nuts not to be. The opportunity to make money, grow a business, and spread a message is so huge, whether you're a regular person like me or a big brand. And this book has every element you'll need to do just that.</p>
+                <p>I first met Derral Eves in Dallas, Texas, for the sole purpose of talking about YouTube. I was working hard to achieve my dream of becoming the world's biggest YouTuber when I came across Derral's YouTube channel. I knew I had to meet him because he knew stuff I needed to know. So I messaged him, and I jumped on a plane. We've been YouTube data best buds together ever since.</p>
+                <p>Derral has pulled tens of billions of views on YouTube and even on other platforms because of his deep understanding of algorithms and the viewer. He owns VidSummit, the #1 YouTube data conference in the world. Only one or two other people in the entire world understand YouTube on the level that Derral does. I have one of the top three most-watched channels on YouTube, and I still talk about YouTube data and strategy with Derral because nobody is on the same wavelength as he is. Whether you're a creator or a brand, you can learn how to be successful on YouTube by reading Derral's book. Be open to what he can teach you, whether you have five subscribers or five million. Because remember, you should be improving at every level, always making better content. <em>The YouTube Formula</em> will help you do that.</p>
+                <p style="text-align:right;font-style:italic;">— MrBeast</p>
+            </div>
+
+            <!-- INTRODUCTION -->
+            <div class="chapter" id="ch-introduction" data-chapter="introduction">
+                <div class="chap-num">Introduction</div>
+                <h1>Introduction</h1>
+                <p>A magical ice-cream-pooping unicorn made me write this book. That's not where it started, but it's what pushed me over the edge.</p>
+                <p>If you think this makes me sound a little crazy, let me explain.</p>
+                <p>It was 1999. I had recently graduated with a degree in advertising and marketing, and I had a stable job with benefits and potential for advancement. But then . . . I quit. It wasn't the right career path for me. I wanted to start my own business and create my own future. This felt crazy because my wife and I had our first baby, Ellie, that year, and I felt the pressure to provide for my family. Keeping a steady job and building savings would have been the safe thing to do, but instead, I spent all our money on the latest Macintosh computer and the software it needed (it would have been cheaper to go with a PC! Dang you, Steve Jobs). I was determined to be a successful business owner and ready to take on the world . . . from my kitchen table workstation at home.</p>
+                <p>I spent days coming up with my company info, designing a website, and making my own business card. I just knew I would be a great entrepreneur. But after only two weeks, my wife, Carolyn, let me know that my office needed to move from the family table where she fed the baby and where there were spills aplenty. She had gotten a degree in accounting and had a really good job and had put me through school, but we both wanted her to be able to stay home with Ellie and our future children. Carolyn was my business partner—she did payroll, invoicing, and bookkeeping. We discussed where the company was going and how we could get money coming in. I needed to find clients to start bringing in the money so Carolyn wouldn't have to go back to work.</p>
+                <p>My first order of business, though, was to move my work space. This took me to Staples to buy a desk for my computer. I was admiring all the things I wanted for my new business, walking down the aisle with color laser printers. If only I could convince my business partner-wife that I needed to buy one of these beauties! A fancy printer could help me show future clients work samples for ads I could make for them. My tech-geek daydream was interrupted by a man asking me a question about printers. He introduced himself as Chuck and was wondering if I could help him with picking a color printer. I explained the difference between the two printers in question because I knew all their specs—these were printers I wanted to buy for my business, too. I didn't have the money for a printer because I didn't have any clients. I recommended the more expensive printer because of its print capabilities and less expensive toner. He said, "I've been coming to Staples for years, and you are the best employee I've ever talked to." I informed him that I didn't work for Staples (which surprised him because I was wearing a red polo shirt and khakis—the classic Staples employee outfit). "Are you sure?" he asked. I convinced him by telling my story about starting my own business doing graphic design and websites. Wouldn't you know, he had recently started his own company called 1001 Business Cards and was looking for a designer. He hired me and my company on the spot to design his website and business cards. How serendipitous! I walked out of that Staples with a desk for $200 and a check for $300 from my first client, a $100 net profit. "That was easy!" in true Staples fashion. Owning a business was going to be a walk in the park.</p>
+                <p>I couldn't wait to go home and share my first success with Carolyn. My confidence soared and I knew I could do anything I set my mind to. However, only a few months later, my confidence had morphed into a feeling of uncertainty. I was going nowhere. I was barely making enough money to pay some of the bills and feed my family. We were dipping too much into our meager saving account. I needed more clients and fast.</p>
+                <h3>Do You Know What Your Problem Is?</h3>
+                <p>I went to see my dad to ask his advice. My dad had owned several businesses and done a lot of real estate ventures, and he had been successful at both. He gave me some simple advice, but it was some of the best advice I've ever received. He said, "You need to find a way to make more money with less time and with diverse streams of income." That was his standard way: he would always restate my problem before giving me fatherly advice. "Derral, don't think of solutions, think of the problem. When you focus and obsess on the problem, the solution will present itself." Take a minute and let that soak in. Einstein believed that our ability to identify problems was in direct proportion to the quality of the solutions we generate. He said, "If I had an hour to solve a problem I'd spend 55 minutes thinking about the problem and five minutes thinking about solutions." I believed Einstein's words, but I really trusted my dad.</p>
+                <p>I was determined to figure out what I was supposed to do by focusing on my problem, which was this: I needed more clients.</p>
+                <p>I took the next morning to internalize what my dad had said and identified the problems that were keeping me from diversifying my income. I made a list of the problems associated with having only one client. I thought of every problem I might encounter that next week, month, and year if I continued on the path I was on. When I combed through my list, the solution presented itself to me. I had a list of businesses and all of their contact information sitting in a pile of business cards on my desk.</p>
+                <p>As an independent graphic designer, I created new business cards for my only client, Chuck, at 1001 Business Cards. He paid me $10 a card. Normally, I would have had zero contact with those businesses ordering cards. Chuck would get a new client, collect their logo, their picture, and their design requirements, and send them to me. I would design their card and email it to Chuck. After client approval, Chuck would have the cards printed and delivered. There was no reason why I would have interacted with these businesses. But now I had a plan to diversify. I wanted to sell them a five-page website design package for $299. I started cold calling these businesses with my offer. After spending a week calling every business card that I had designed, there were only two takers out of 200 calls. Selling over the phone was difficult; telemarketing wasn't for me.</p>
+                <p>I needed a new plan, so I refocused on the problem. I analyzed my talking points, learning from my telemarketing experience. I devised a new strategy that would take the process from a cold call to a warm lead, but it meant I needed to meet with these people in person. I asked Chuck if I could hand deliver the completed business cards to these businesses and offer my further services for ads and websites. He gave me the thumbs up and go-ahead, which landed me the opportunity to meet face-to-face with people who could be potential clients for my own business. These were the perfect candidates for businesses that needed a web designer.</p>
+                <p>When I'd present the finished cards to the owner or manager of the business, they were always impressed with the quality of the card. We didn't do simple cards; we printed in quality full-color graphics with all the bells and whistles of a premium business card, which was uncommon then. As soon as I saw the moment of excitement or approval of the product, I'd pounce. Here was my window to get a new client! I told them I was the card designer, I was glad they liked my work, and I could do a lot more for their business by helping them create a website. I told them that every business needed a website—this was the future in marketing because leads and sales were going digital. It actually was a tough sell, because most businesses in my area were still on dial-up Internet at the time. If you are unfamiliar with dial-up Internet, let me explain it this way for you youngsters: dial-up Internet ran at 56/K (kilobits) per second. Not megabits. Which means that if you wanted to download today's latest update of <em>Fortnite</em>, it would take you 30 days, 22 hours, and 3 minutes, assuming your connection wasn't interrupted and you didn't have to start all over again.</p>
+                <p>You could imagine that people didn't see the value in spending money on something so slow and widely unused, but I would start using my sales pitch. It really was going to be the way of the future. Even if only 10% of the city was using the Internet to look for a service, their business was guaranteed to take that call if their competitors weren't online yet. Having a website would give them a place to host frequently asked questions, share a bio about the business and/or the owner, and, most importantly, generate leads. It was a digital sales brochure and the future of marketing.</p>
+                <p>This new plan worked almost every time. I was converting nearly every business card client into a website client. I got more than 100 clients originally, plus referrals at every turn. And as a bonus, they would need a second business card printed because the first one I designed hadn't had a website listed on it! Score! I sold these updated business cards for $20, helping my original client, Chuck, and giving him additional clientele. He had been my first and only client, and I became his biggest client over the years, bringing in lots of business for him.</p>
+                <h3>Your Client's Success Is Your Success</h3>
+                <p>But website design was one-off work. I only got paid once by each client, which meant that I was always hustling and trying to make a sale. There were a lot of ups and downs, and it was starting to wear on me. It was time to visit Dad again. I told my dad of my predicament, and he smiled as he said, "Remember the advice I gave you?" Of course, I did. I had gone from one client to hundreds of clients, even getting other designers to help me so I could save time while bringing in more money. Dear old Dad smiled and said, "Well, I only gave you half of the advice. You needed to learn that first part before you were ready to learn the next. You've been banging your head for some months now, right? There are a lot of ups and downs?" It was like he was reading my mind. "You've been losing sleep, too, haven't you?" How did he know? "Now you are ready to understand the second part: Success is all about acquisition and retention of clients and having them come back wanting more. You got the acquisition down. But how is your retention? How many clients pay you monthly?" I explained the one-and-done nature of website design. Every single client paid me once. Dad said, "You'll always have ups and downs and sleeplessness without retention. Figure out retention—how you can keep them wanting more, and you can figure out success." If you haven't realized it yet, my dad is a genius.</p>
+                <p>So I analyzed my problems again. What could I do differently? I came to the conclusion that there were two ways I could get recurring monthly payments from clients: hosting and ranking, that is, Internet marketing. All websites needed a host, which required monthly fees. So I started a hosting company called FatBoy Hosting. The name referred to the size of the hosting packages, not my personal weight (or did it . . .?). We had everything from small to XXXL to Blimpie-sized packages. I also knew that companies paid monthly for Internet marketing. They needed to have websites get ranked in directories and other services. So I started doing website ranking for companies that paid me monthly. My business soon stabilized and started producing residual income. And I got more sleep. Thanks, Dad.</p>
+                <p>I continued to build websites for clients, hosted their website, and helped them get ranked on the relatively new Internet, or the World Wide Web as it was more commonly called then. I used search directories like Yahoo, Excite, Ask Jeeves, and AltaVista. "Google" wasn't yet a household name. I did this for several years, trying to expand my company. In 2005, I had hired a few new employees and needed to purchase some inexpensive office furniture, so I went to Craigslist to look for a good bargain. When you're fresh out of college and excited about a glowing future in entrepreneurship, you buy your office desk brand new at Staples, but when you've been around the block a few times and the shine has worn down, you save money and buy secondhand goods (or even better, get them for free) that work just the same!</p>
+                <p>While I was on Craigslist, I saw a listing for a contest to win a free new iPod Nano for anyone who could get people to join a new website called YouTube. The previous iPod on the market was the size of a brick and held a weighty 1,000 songs! Plus, if you threw it at someone you might kill them because it was heavy like a brick. Steve Jobs had just announced this new iPod Nano, which was the size of a pack of gum (much lighter than a brick) and held even more songs. I wanted that iPod! I signed up for YouTube, spammed all my contacts and clients to do the same, and even created new emails for myself personally to increase my chances. I became one of the lucky winners of the latest and greatest iPod on the market.</p>
+                <p>But then I started watching videos on YouTube and was blown away by the quality of the videos and the lack of the dreaded "buffering" load time so common then. I was hooked! I learned that you could embed videos from YouTube to any website, and people could play them wherever they were in the world. BAM, an idea came to me: I could upsell my 865 clients to embed a video on their website. It would be so easy, it would be like printing my own money. No one was doing this. I could be the first to put videos on my clients' websites.</p>
+                <p>In November 2006, YouTube was purchased by Google for $1.65 billion. Naturally, the platform's videos started to gain ranking traction on Google searches—now that they owned it, of course they wanted to help it get noticed. At this time, my job was to keep my clients' websites ranked as #1 on the front page of Google. But there was an anti-spam czar at Google named Matt Cutts who made my life a living hell. Matt Cutts was my nemesis. My whole day was spent trying to figure out hacks to game the system and get my clients' websites highly ranked, and Matt and his team would find exploits to the system and shut them down every time. I felt like I was stuck on a roller coaster with no end in sight.</p>
+                <p>I was sick of fighting with Matt Cutts, and I was sick of getting the dreaded phone calls from my unsatisfied clients every time their ranking dropped. This was driving me insane. So I focused on the problem again. I looked at my business and asked myself what would be the easiest way to accomplish what I needed to do. I had an epiphany: if I stayed in line with Google's goals, I would get ranked every time. I didn't have to fight the system (or Matt Cutts) anymore. It sounds so simple now, but it was a big aha moment for me at the time. I looked at everything that Google was trying to accomplish.</p>
+                <p>I read every blog post and watched every talk by Google founders Larry Page and Sergey Brin, and Google CEO Eric Schmidt. I started to listen to what they really wanted. They talked a lot about organic ranking and tracking. They also talked about the future of Google, with artificial intelligence that would look for patterns to predict what people would want. I made sure I met all of the requirements when it came to what Google wanted.</p>
+                <p>It was then that I noticed some patterns from my clients' data. Remember the 865 videos I made and embedded on their websites? Most of them were on the front page of Google without any hack or help. WOW! You mean, I didn't have to fight Matt Cutts? And I didn't have to get frantic calls from clients? Sign me up! All I needed to do was make videos that were search-friendly. So I created a plan of attack. I made a series of videos for a few select businesses and focused on generating a lead. My brother-in-law is an optometrist, and I asked him to let me market his practice with videos. I was able to rank for some hard key terms that would have taken a lot of effort for a website but showed up easily in the results in a matter of hours when I used videos. <em>Crazy!</em> To make sure this wasn't a fluke, I tried it with a second business, a personal injury attorney. We got the same results: a high Google ranking and the phone ringing with leads.</p>
+                <p>I had done it; I had solved one of the biggest problems for my company, and I wanted to go all in on video and YouTube. I needed to become the expert helping businesses by generating leads and sales with video. I kept my big clients who were paying thousands of dollars a month, but I sold everything else. It was my point of no return. Like when Spanish commander Cortés sank his ships and conquered the Aztecs. In sinking the ships, he gave himself one option: succeed or die. There would be no means to turn back. Likewise, I sold all my website and Internet marketing clients to an SEO company in Salt Lake City, with the clause that I could keep all the video marketing work. They agreed because they didn't know what I knew, that videos ranked in Google without any blackhat hack or strategy. They were being promoted because YouTube was owned by Google. Google wanted videos to be found, so they moved more users to YouTube.</p>
+                <p>So I shifted my focus from website creation and marketing to video creation and marketing . . . and I watched my clients' rankings and revenue skyrocket because these videos were ranking on page one of Google.</p>
+                <p>By this time, I was itching with excitement for what I was witnessing in the evolution of marketing: online video was going to be a big deal, and I wanted to be a part of it. Video power outweighed word power by an overwhelming margin. Viewers were much more likely to do what advertisers wanted them to do—pick up the phone and call, make a purchase, or sign up for a service—after watching a video. And these videos could be made by regular people who were getting incredible distribution to millions of viewers . . . using inexpensive camera equipment. This had never been done outside the realm of television studios and movie sets.</p>
+                <p>In my videos, I hyperfocused to dial in messaging with the goal of getting the phone to ring. It was so important to know everything about the person making the phone call. I would grill my brother-in-law and his office staff on all the things people would ask and what they needed help with. Then I would take those questions and turn them into talking points for the video with clear solutions on how we could help. I asked a ton of questions to get a good handle on the niche and what would work. Then I would make 10 solid videos that would show up in search. Once the messaging was working—the video was ranking and the phone was ringing—I would go to another city and do it all over again. (I only worked with one business per niche in each city.)</p>
+                <p>I had started with my optometrist brother-in-law, but I replicated my work in that niche hundreds of times in hundreds of locations. When I got a system down for one niche, I could rinse and repeat for any client in that niche. Why re-create the wheel when I could slap a new logo on what was already working? I had my systems dialed in so well. The clients were happy, which meant that I was happy. Matt Cutts was no longer the enemy; he was my best buddy! Talk about a win-win.</p>
+                <h3>Uniting People around Their Passion</h3>
+                <p>At that time, my relationship with YouTube consisted of creating videos and uploading them to YouTube for the sole purpose of getting a Google ranking for lead generation. Little did I know that this was a fraction of the potential of YouTube. There was a huge opportunity to reach millions around the world, and I was about to witness this with my next client.</p>
+                <p>One day I got a phone call from one of my clients, Wade Beatty, who had a lead for me. Wade owned a local pest control company, and I had done some successful video marketing for him. He had gone to spray a piano store for cockroaches, and the store owner asked if he knew anybody who did YouTube, websites, and marketing. Wade said, "You have to talk to Derral." So I talked with the store owner, Paul Anderson, who showed me the amazing videos they were making to try to sell expensive pianos. They put grand pianos in beautiful locations outside—on top of mountains, in the desert, in a forest—and the music videos were amazing.</p>
+                <p>I asked Paul what his goals were with his store "ThePianoGuys." He told me he wanted to make enough money from his YouTube videos that he didn't have to work at the store anymore. He didn't actually want to sell pianos, he wanted to make awesome videos that people would love. With the talent of Jon Schmidt at the piano, Steven Sharp Nelson on the cello, Al van der Beek producing the music, and Tel Stewart doing the videography and editing, they had the recipe for success. Their musical passion turned into a channel, and the channel turned into a business that was making so much money that they didn't need the store anymore.</p>
+                <p>When ThePianoGuys' YouTube channel exploded, I was able to be a part of the true power of YouTube for the first time. They had had minimal subscribers when we started, and they had grown to more than 1.8 million subscribers in 12 months and had over a hundred million video views. They had developed a passionate, dedicated audience. (They never sold a single piano! But they did sell out stadiums worldwide.) This success shifted my focus 100% to working with creators to help them build YouTube audiences, and I never looked back. Yes, I sank my ships again, and I haven't regretted it for a second.</p>
+                <p>Uniting people around a similar passion was exhilarating. It was an intense realization that I could help people find their own dedicated global audiences. It didn't have to be confined to a geographical location like my previous work had been, and it didn't have to be all about business. In fact, it <em>had</em> to be about more than the business. You could find passionate followers in every corner of the Internet and bring them together around your content. This was about more than generating leads. It was the perfect crossover between money and passion, something I had been missing all those years leading up to this moment. I had learned a lot about algorithms and rankings and the mechanisms that worked, but now I could see the other side of the coin. Creating content to inspire, educate, or entertain was the missing link. Everything I had learned about algorithms, people, and messaging came together in this new moment of clarity. Audience development was my thing. I realized I was really good at creating a community around content, so I dedicated my career to learning what makes an audience click.</p>
+                <p>To date, I have created and developed a plan and content strategy for 25 different YouTube channels. I have helped them grow from zero subscribers to more than a million subscribers each. With my formula, we've generated more than 59 billion video views in total. I've seen this change so many people's lives: they not only become full-time YouTube creators, but they build sustainable businesses and brands.</p>
+                <p>For businesses, this can be a game changer for your bottom line. Here's where the magical ice-cream-pooping unicorn comes in. I was executive producer on one of the most viral video ads of all time, and it was for a step-stool called Squatty Potty. It showcased this magical unicorn demonstrating the advantages to using the toilet stool while "pooping" ice cream. Yes, the stool is a real product (unfortunately, the unicorn is not), and it did more than $45 million in sales in one year. That's a powerful ad! After I watched its success, I knew it was time to share what I know about YouTube so that others could learn how to tap into this resource as well.</p>
+                <p>Don't hesitate to jump in with both feet as I teach you all things YouTube: the ins and outs of the platform, the opportunities waiting for you, and the formula for doing it right. You might even have to throw out some things you thought were true about YouTube, but no need to worry; you'll relearn quickly and have the solutions on hand. Reach for this book as a reference as you move forward to create amazing content and get the results you've always wanted.</p>
+                <p>I've been on YouTube since 2005 and have seen how it has evolved and how it can change a business, and more importantly, how it can change people's lives. YouTube is one of the most powerful platforms we have to connect with the world and grow an audience using video.</p>
+                <p>I can't wait to show you how to harness the power of YouTube . . . let's get started!</p>
+            </div>
+
+            <!-- CHAPTER 1 -->
+            <div class="chapter" id="ch-1" data-chapter="ch1">
+                <div class="chap-num">Chapter 1</div>
+                <h1>Try, Fail, Analyze, Adjust: A YouTube History Lesson</h1>
+                <p>Have you ever watched the first video uploaded to YouTube?</p>
+                <p>It's an important question. No really, it matters. I don't think it matters just because I'm a YouTube expert and think it's high-quality content (spoiler alert: it's not). I think it matters because it's history, and we can learn so much from history. As a video guy, I love documentaries and biopics. They fascinate me because learning about the past helps us understand and navigate our world in the present. When we explore history, we see how decisions and events affect people, whether for good or bad, and how they impact people's families, communities, and ultimately, the entire world.</p>
+                <p>But why the heck am I talking about the impact of history on the world in a book that's supposed to be about YouTube and making you money? I'll tell you why: studying the history of anything can benefit someone who wants to learn more about that topic and succeed in that space. It should be obvious that the same applies to YouTube creators as well. I truly believe that if creators and businesses will take the time to learn from YouTube's history—how it became the mega-platform that it is based on decisions that lead to failure and success—they will become better content creators and businesses and be more equipped to generate their own success on the platform.</p>
+                <p>So how did YouTube start, and how does that affect you and your content?</p>
+                <p>In July 2002, the prestigious start-up company PayPal had just been acquired by eBay for $1.5 billion. This created a lot of buzz in Silicon Valley. Ideas were being tossed around for websites, apps, and platforms that could possibly bring in a lot of money and transform the world into a digital money-making giant. Three PayPal employees, Jawed Karim, Chad Hurley, and Steven Chen, were some of these idea generators. They soon came up with the idea for the YouTube website, but it was nothing like the website we are familiar with today—they started it as a dating website.</p>
+                <p>From their makeshift office in a garage, the domain name "YouTube.com" was activated on February 14, 2005, Valentine's Day—the perfect day of the year to start a dating website. On April 23, they uploaded YouTube's first video called "Me at the zoo." It was 19 seconds of Karim at the San Diego Zoo talking about the elephants. If you go and watch it now, you'll laugh because you know he was trying to get the website to be a place to find a date, and he makes an innuendo about the anatomy of the elephant. The video was actually pretty good quality for nonprofessionals at the time.</p>
+                <p>Now that they had the ball rolling and the servers going, these guys needed active website users. Who was the demographic of people looking for love? College-age students. So they pitched at the nearest university campus, Stanford, and canvased pretty heavily, passing out flyers to everyone who would take one. Their slogan was, "Tune in, hook up." There were virtually no videos on the site yet, so they uploaded footage of 747 planes taking off and landing. There was no rhyme or reason; they just wanted videos on there. "The whole thing didn't make any sense," Karim said. "We were so desperate for some actual dating videos, whatever that even means, that we turned to the website any desperate person would turn to: Craigslist." They ran the ad in Los Angeles and Las Vegas, offering to pay women $20/video to upload videos of themselves. They got exactly zero responses.</p>
+                <p>Here is where it gets interesting and applicable: Once people began using their "dating" website, the trio looked at the data coming in those first few weeks and months, and they realized that the website's handful of users were not coming for dating at all; they were coming for self-broadcasting. They were posting videos of themselves and their friends doing funny or embarrassing or weird things. They were posting videos of their pets, videos of snowboarding, videos of random places and things, and the like.</p>
+                <p>At this critical juncture, Karim, Hurley, and Chen had a decision to make: should they continue to push YouTube as a dating website as planned, or should they change their business model entirely because the data showed that the usership was not the I-want-a-date crowd? "Forget the dating aspect," said Chen. "Let's just open it up to any video." Herein the power of YouTube was born. Based on the data feedback, they switched gears and catered to what the users wanted.</p>
+                <p>In June, they created tools that encouraged self-broadcasting. They supplied a growing ecosystem of whatever random videos were being uploaded by the people. They launched an "embed" video option that became a game changer for websites and promotion. In short, they gave self-video creators the platform and the control to share their videos with the world from anywhere in the world, because that's what the people wanted. These website users were not looking to hook up on YouTube; they were finding a place to put their work and their creativity.</p>
+                <p>That decision to pivot led to YouTube becoming the most powerful video platform in the world and disrupted the entertainment industry as we knew it. It was a game changer in video entertainment, taking creation from the hands of the few to the hands of everyone, if they so desired. With access to a recording device and an Internet connection, anyone could broadcast a video to the entire world! This is the norm today, but think about how monumental it was in the beginning. Big businesses and brands started to pay attention, changing their content creation and advertising strategies. With power shifting to the regular joes, brands seized on the opportunity to sponsor creators who had a unique, organic viewership. Big business had never had this kind of competition before, and it was a force to be reckoned with.</p>
+                <p>The website continued to grow quickly. Google saw the early potential of the site, and they acquired YouTube in 2006 for $1.65 billion. Today, more than one-third of all Internet mobile traffic comes from YouTube traffic. There are more than a billion combined hours watched on YouTube every day, and almost two billion logged-in users visit the site every month. Nearly 100 countries have local versions of the platform available to them.</p>
+                <p>Do you think all of this would have happened if the guys had ignored the data feedback, deciding to stick to their original plan, and insisting that YouTube had to be a dating website? They had tried the dating website, and it had failed. So they focused on the problem, analyzed what was working and why, and they adjusted their strategies to support more of that.</p>
+                <p>YouTube's origin story is the ultimate meta-example of how to try, fail, analyze, and adjust to succeed on YouTube. This formula <em>is</em> the YouTube Formula. Understanding its history will help you as a creator or business understand how to utilize the formula for your own success. You have to analyze what's working and what's not, and make changes accordingly. This is the premise on which the whole book is built. If you can grasp this "big idea" foundational formula, you're starting out on the right foot, and you're ready to learn the step-by-step tweaks that make all the difference in the wide world of YouTube.</p>
+                <p>In Part I, I break down the algorithm so you know exactly how the YouTube platform works in order to become a part of it. In Part II, I open your eyes to the endless opportunities available on YouTube—opportunities for exposure, artistry, collaboration, sponsorship, merchandising, and business ownership. I tell you how all different kinds of creators and businesses have seized on these opportunities and gone beyond "making a living" from YouTube. There is so much money to be made in so many ways on YouTube, but even more, there is so much power in influence. I can show you how your influence can make a big difference.</p>
+                <p>In Part III, I dissect the YouTube Formula for content planning, creation, execution, distribution, analysis, and adjustment. I teach you how to find your audience, speak to them, and convert them into your own loyal community. I teach you the importance of traffic sources so you know where the viewers come from and how you can get your content seen. I help you read metrics graphs so you can recognize data patterns. Your YouTube success depends on developing these skills, so get ready to learn and embrace them.</p>
+                <p>I've helped countless YouTube channels tap into growth opportunities they could not see on their own. And I've helped creators and brands learn the steps to get views, make money, and build businesses. If you follow the Formula and open your mind to the opportunities I am going to show you, you can get the results you've always wanted on YouTube.</p>
+            </div>
+
+            <!-- CHAPTER 2 -->
+            <div class="chapter" id="ch-2" data-chapter="ch2">
+                <div class="chap-num">Chapter 2</div>
+                <h1>The YouTube Ecosystem</h1>
+                <p>In order for us to understand how YouTube really works, first we need to look at how it operates as a digital ecosystem. A digital ecosystem works much like a natural ecosystem: there are a lot of moving parts, and all of those parts affect the organization as a whole. Grade-school science taught us about energy flow in a natural ecosystem; photosynthesis, plants and animals, decomposition, and nutrient conversion are all part of the cycle. Every factor in the chain has its job to do, and if it doesn't work right, it affects the entire operation.</p>
+                <p>YouTube's ecosystem also has a flow and cycle, and its contributors affect the whole, for better or for worse. This digital ecosystem includes the creator, the viewer, the advertiser/brand, copyright holders, multichannel networks (MCNs), and YouTube itself.</p>
+                <p>Here's a quick summary of how the YouTube ecosystem works: creators make videos and upload them to YouTube. Brands pay YouTube to run advertising alongside uploaded content, either before or during a video. When a channel meets the ad sharing program requirements, it gets a cut of the money from the ads running on their content. Brands also connect with creators who they think will be able to increase brand awareness and/or their bottom line. This influencer marketing is a huge part of YouTube's ecosystem. The viewers come to interact with content, creators, and communities. They watch, subscribe, comment, like and dislike, save, and share. YouTube as a website is the host of the ecosystem, but as a company, it's a part of the ecosystem. YouTube the company has to make sure everyone in the ecosystem is satisfied. They field complaints and legalities. They ultimately make the rules, but the rules evolve over time based on feedback from the ecosystem and what needs to be addressed. MCNs played an important role in the beginning of YouTube, connecting brands with creators and managing other elements of the creator experience. They also helped try to problem-solve because YouTube didn't have the creator support at the time.</p>
+                <p>Creators don't have to work with MCNs; they can manage their own channels and deal directly with brands or work with agencies to connect with brands. Finally, copyright holders want their original work attributed to them without being stolen or copied. They want to keep any financial benefit from that content coming back to their original content.</p>
+                <p>To be a part of this digital ecosystem, understand the role each contributor plays, especially the role you intend to occupy. For example, if you are a creator, become familiar with YouTube's guidelines so your content can get monetized and stay monetized. Don't steal or copy someone else's content, but if you intend to use clips of scenes or songs or any other copyrighted material, know how to go about it legally. Your content's success depends on your understanding your role in the ecosystem. Your YouTube experience should be more than starting a channel and uploading videos. In fact, if this is your methodology, your video will never reach viewers. YouTube rewards original content that's made for a specific audience, so if you learn the system and follow the rules, your videos have a greater chance of being seen.</p>
+                <h3>Beware of Copyright</h3>
+                <p>The first consideration in the ecosystem should be the viewer. If nobody is coming around to watch, the rest of the ecosystem is dead in the water. When YouTube was new, the viewers were a fairly specific demographic because the content was fairly specific. People were uploading personal videos to share with their friends and family, so there was an audience there, but where the viewership really had the potential to grow pushed in the entertainment direction. People were uploading clips from TV shows, movies, comedy bits, and the like. Viewers were also coming to find clips from popular culture and the news. It was easy to upload this stuff, and it was easy for the viewers to find.</p>
+                <p>From 2005 to early 2007, YouTube users had been uploading content generally unregulated and unsupervised. This included a lot of original content, sure, but it also included protected content that had been created by another person or company. Obviously, this was a direct infringement to the copyright holder of that content.</p>
+                <p>It's important to note here that YouTube users weren't doing this sneakily or maliciously. They just wanted to share things they loved, and it was so easy to do. Do you remember Napster from the turn of the century? For those of you born in the 2000s, let me tell you a story. Imagine a world where you couldn't listen to your favorite music on demand. The only way to hear your favorite song was to sit by the radio all day, waiting. If you wanted to listen on demand, you had to buy the entire album that included the one song you wanted to hear. Then along came Napster. Napster was the original widespread file-sharing platform. Like, <em>the</em> pioneer of all digital media sharing on the Internet. Audio files, mostly songs, were shared as MP3 format files, and anyone could download any file for free. FREE! This was huge for music fans all over the world—the people loved Napster. Who wouldn't want unlimited access to their favorite bands for exactly zero dollars? Well, I guess not quite everyone was a Napster fan . . . namely, anyone who should be making money from music sales.</p>
+                <p>If you don't know the rest of the story, I bet you can guess what happened next. Lawsuits. Shut down. No surprises here. Actually, just before Napster was created, Bill Clinton, then-president of the United States, had signed the Digital Millennium Copyright Act (DMCA) into law in 1998. The DMCA has regulated digital copyright issues and reinforced offender penalties ever since. (However, websites hosted outside the US are regulated by the United Nations World Intellectual Property Organization (WIPO).) What happened with Napster set the stage for media sharing regulation from that point forward.</p>
+                <p>YouTube could have looked at companies like Napster as examples of what not to do, and implemented their Content ID system from the time they opened up shop in 2005, but they didn't. In March 2007, a little company called Viacom, along with several others, sued Google and YouTube for $1 billion worth of copyright infringement issues. Reuters reported that YouTube was only taking copyrighted content off the site after a copyright owner had requested it, but there was nothing being done on the front end to prevent that content from being uploaded to begin with. Further, the lawsuit claimed that YouTube knowingly let this happen because they were making money on all that content.</p>
+                <p>The Content ID system wouldn't be implemented until 2007, the beta in June and full rollout in December. The ID system would attach a unique "digital fingerprint" to new uploaded content. Content could then be tracked and measured against already existing copyrighted content so YouTube could catch infractions.</p>
+                <p>Now that the law had been involved, YouTube had to settle some things for copyright holders. First, they literally had to settle that hefty lawsuit (the terms of settlement were undisclosed), but they also had to settle how they would proceed from there, and the Content ID system was the answer. I can't stress enough how monumental this was to YouTube's success. YouTube likely would have followed the fate of the original Napster and been shut down if the Content ID system hadn't been implemented, and a lot of creators and businesses like you and me would be doing something else. It was a total game changer.</p>
+                <h3>Ad Revenue Sharing</h3>
+                <p>In 2007, while the big copyright problem was simmering down, YouTube added two features that would make a similarly huge impact on its future. These features would be problematic in some ways, but also they would significantly change advertising and how creators could make a living from YouTube. Which features could be this consequential? (1) In-video advertisements and (2) the Partner Program.</p>
+                <p>Advertisements on YouTube have evolved a lot over time. They used to be display ads or they appeared underneath the content, but with these changes, ads would pop up right in the content where the viewer was looking. And now the creator of that content could be compensated via ad revenue sharing. This is how the YouTube Partner Program began. Creators became super motivated to make good content that would get more viewers watching, because now, more views equaled more money. Creators and businesses really wanted to be YouTube Partners!</p>
+                <p>Unfortunately, this also meant that creators realized they could use tactics to get people to click on their videos, even if those tactics were divertive. Their aggressive "bait-and-switch" strategies included misleading titles, sensational thumbnails, and superficial content that strayed from the original purpose of the video. They wanted to get people to click on their videos at any cost so they could produce revenue from the ads being integrated with their content.</p>
+                <p>Let's not forget the first member in the YouTube ecosystem here: the viewer. This new ad sharing program created a big problem with viewer satisfaction. People began spending less time on YouTube because of the in-your-face ads and because of clickbaiting that hinted at what they were looking for but actually didn't satisfy that end at all in the content itself. In short, viewers felt tricked and unsatisfied.</p>
+                <p>In addition, many YouTube viewers got angry at these "sell-out" creators who ran ads in conjunction with their content. They even went so far as to join channel boycott movements against creators. Seeing ads today is just part of the online experience, but back then, it was such a big deal that it interrupted the ecosystem.</p>
+                <p>As you can see, the integration of the Partner Program further complicated YouTube's delicate ecosystem. Keeping advertisers happy was an obvious priority because that's where the money came from, but YouTube also had to keep creators and viewers happy to achieve this, and the task was proving to be extremely difficult. Creators wanted their fair share in ad revenue without being labeled a sell-out, and viewers wanted to watch content without feeling tricked or sitting through ads on every video.</p>
+                <p>Let's pause here for a minute. Before we run away with all the problems the Partner Program created, I want to emphasize how monumental its existence was. Google had pioneered advertisement revenue sharing with its AdSense program, and they implemented that program with YouTube. They took it to another level going from display ads to video ads, because video ads were more effective. They could charge advertisers more money for video ads, so YouTube made more money this way. Because YouTube didn't create their own website content, they had to incentivize creators to make good content that would get people coming to the platform.</p>
+                <p>AdSense was the origin of advertisement revenue sharing. This was absolutely uncharted territory! It was like the great California gold rush, but it was the gold rush for digital marketing in the twenty-first century. Companies had never offered a portion of their revenue to the general public before!</p>
+                <p>YouTube said, more or less, "Hey folks, if you make good content that viewers will come and watch on our website, we'll share some of the advertisement money we get with you."</p>
+                <p>And creators were like, "Wait, really? You mean I can get compensated for my hobby? Potentially earning enough that I can replace my boring nine-to-five income doing something I actually like, and can make more money doing? Well, then I'm going to make the best darn videos you ever saw!" And the gold rush was on. The channel owners grabbed their pickaxes, installed sluice gates, and started panning for gold.</p>
+                <p>So many creators, businesses, and advertisers saw the potential for massive payout with ad sharing, and they wanted in. The risk was that they might not actually make any money if they didn't get viewers, but the opportunity was worth the risk, and it paid off big for so many of them. This was a genius move by YouTube! They were enlisting a worldwide army of creators to do the grunt work to get visitors to their website for a piece of the revenue. Channel owners were ready to compete against each other for a chunk of the gold.</p>
+                <p>Advertising companies could get into this market very inexpensively. They could track their market, get a lot of eyes on their product quickly without expensive campaigns, and they could do it for literally a fraction of traditional marketing cost. A lot of big brands and businesses gave it a snooty pass because they just didn't realize what they were missing in the beginning. They were too good for it.</p>
+                <p>One of my favorite examples of a YouTube advertising success story comes from a product called Orabrush. Orabrush is a tongue cleaner that was invented in the early 2000s by a guy named Robert Wagstaff, aka "Dr. Bob." Dr. Bob had tried to market his tongue cleaner via traditional product-pitching means, but the companies he approached wanted nothing to do with it. He even invested a lot of his personal money to run an infomercial. It flopped. So at the ripe old age of 75, Dr. Bob turned to a marketing class at his local university and asked if anybody had any bright ideas.</p>
+                <p>My good friend Jeffrey Harmon was a student in that class, and he told Dr. Bob that he thought they could sell the product online with a YouTube video. He took on the tongue cleaner project with the promise of Dr. Bob's personal motorcycle as payment for the campaign. Jeffrey and some creative friends made their YouTube video for just a few hundred dollars, and it went viral. People wanted to know where they could buy Orabrush in their own locations, and distributors started to pay attention.</p>
+                <p>An ad campaign like this had never been done on YouTube, but Jeffrey saw its potential. "We took a product from zero sales anywhere to worldwide distribution," Jeffrey told me. "And we didn't do it with traditional marketing. It was 100% YouTube. We couldn't have made it happen any other way." Orabrush became a multimillion-dollar brand that is sold in more than two dozen countries in 30,000-plus stores.</p>
+                <p>For the record, Orabrush's YouTube channel has more than 38 million video views to date. For a tongue brush. Orabrush was acquired by DenTek in 2015.</p>
+                <p>YouTube leveled the playing field for a small-town, old-man inventor and a few college kids. They had access to the market that was simply unavailable to regular people before YouTube. It literally changed the trajectory of their lives. Jeffrey Harmon became cofounder and chief marketing officer at Orabrush and has gone on to cofound the Harmon Brothers marketing agency with his three brothers, where they have created extremely successful online campaigns for PooPourri, Squatty Potty, Purple, Lume, and many more businesses. Others who worked on the original campaign also have made successful careers out of the path that was set from Orabrush's beginning.</p>
+                <p>Another friend of mine, Shay Carl Butler, began his YouTube career way back in 2006 and was one of the original Partners, so if anyone has a good handle on how the program began and how it has changed ever since, it would be him. "The YouTube Partner Program was so exciting in the beginning, and everyone who knew about it wanted a piece," Shay Carl said. "YouTube had a lot of problems to work out. I remember when it seemed like everybody was mad at some point: viewers were mad at creators, creators were mad at creators, viewers and creators were mad at YouTube, and so on. But YouTube has done a good job overall of working out the kinks." Shay Carl's personal channel is where he began in 2006, but he started his family channel, <em>Shaytards</em>, in 2008, and it has become the main YouTube lifeline for his family with around five million subscribers to date.</p>
+                <p>We'll go into more detail about the Partner Program in Chapter 6.</p>
+                <p>Because of this "digital gold rush" and the amount of creators and advertisers it brought in, YouTube was not equipped to respond to the masses. This is where the multichannel networks came in. MCNs offered to be the go-between for other contributors in the YouTube ecosystem in exchange for a piece of the profit. They helped creators and businesses with audience growth, resources for production, and brand opportunities. They matched advertisers with channels that suited their particular products or services. They dealt with rights management. They gave YouTube some breathing room to worry about other things. MCNs have had both good press and bad, but they did alleviate a lot of YouTube's headaches in those formative years of ad revenue sharing.</p>
+                <p>I recently sat down with Jim Louderback, CEO of VidCon and former CEO of MCN company Revision3, and talked with him about multichannel networks on my podcast <em>Creative Disruption</em>. He talked about how MCNs affected the early years of YouTube's ad revenue explosion. We discussed the ways they helped, but also the problems they created. "In the end," said Jim, "a lot of MCNs did not provide the value they offered. They brought on too many creators and brands to manage, and there wasn't enough revenue to go around."</p>
+                <p>Once YouTube had a better handle on operations, they offered their own Partner support rather than losing creators to outside MCNs. In 2011, YouTube acquired Next New Networks, a company that had been managing a lot of YouTube's early creators. YouTube was ready to take back control internally and put that money back into their own pocket. For this reason and others—like fewer creators signing up, and a smaller margin of revenue per view—MCNs have seen a significant decline on YouTube in recent years.</p>
+                <h3>An Evolving, Thriving System</h3>
+                <p>As you can see, ad revenue sharing completely changed the YouTube ecosystem. YouTube had been a minefield of instability in its fledgling years. They were learning the hard way that their ecosystem was a delicate balancing act—among its copyright holders, its viewers, its Partners, and its advertisers. There has been an "Adpocalypse," countless issues with the algorithm, FTC COPPA children's privacy issues, Adpocalypse 2.0, and more. YouTube has learned to deal with the problems and tried to make changes to satisfy the masses, but it is a constant effort.</p>
+                <p>When we come full circle back to the viewer, the first component in the ecosystem, we have to consider how much the viewer has changed. YouTube really wants to have satisfied viewers. Over the years, they have tried to modify their recommendation feature to figure out exactly what each viewer might want to watch. They know that happy viewers will stay around longer, and viewers who stay around longer will produce happy content creators and happy advertisers. And the more the viewers watch, the more money everybody makes. The thousands of changes that have been made to the algorithm over the years have literally paid off, so the better the algorithm gets, the happier everyone will be. Get ready to dive deep into the algorithm in the next chapters.</p>
+                <p>YouTube must be figuring out some things, though, because they have seen 31% year-over-year growth! In 2020, YouTube announced their revenue for the first time ever. In 2019, they made $15.15 billion, which was nearly double the year before! That is mind-blowing, in both the amount of money and the percentage of growth. People watch more than five billion YouTube videos a day. <em>Billion</em>.</p>
+                <p>To really grasp how much bigger a billion is than a million, consider this: one million seconds is roughly 11 days, while one billion seconds is 31½ <em>years</em>. Now give a second thought to that $15.15 billion figure for YouTube's 2019 revenue, and gasp. And they are really only just getting started.</p>
+                <p>YouTube began as a dating website for a handful of college co-eds in California in 2005. Now it reaches every corner of the globe on every device. Roughly one-third of the entire population of the earth is watching YouTube regularly. Again, we are talking in billions. Where it used to be a specific demographic, the YouTube viewer is now <em>everyone</em>.</p>
+                <p>Creators and businesses can proactively position themselves to win on YouTube by learning about their own role in its ecosystem and the mechanics of a good channel. These are nonnegotiables if you want to succeed on the platform. Don't try to game the system; try to align yourself with YouTube's goals so fewer problems come up and you can focus on good content creation. YouTube has changed exponentially since its inception, and its ecosystem has changed, too. If you want to be a part of that ecosystem, you have to understand how it works and how you can adapt to it, because it will continue to change. You can adapt intelligently by looking at the data YouTube gives you. I'll show you how the algorithm works and how to create and adjust from its data.</p>
+            </div>
+
+            <!-- CHAPTER 3 -->
+            <div class="chapter" id="ch-3" data-chapter="ch3">
+                <div class="chap-num">Chapter 3</div>
+                <h1>The YouTube AI: A Deep Learning Machine</h1>
+                <p>A YouTube creator who recognizes the need to adjust to the data but doesn't have a clue how to do it is like a gardener who wants home-grown produce but has never planted a seed. Becoming a successful gardener doesn't happen overnight, and neither does becoming a YouTube pro. You have to grab a shovel and dig in. There will be blisters on your metaphoric hands in the beginning, but as you develop your data-digging muscles, you'll start to unbury a network of underground connections and discover a whole new world of the hows and whys of YouTube and what it takes to produce successful content.</p>
+                <p>YouTube's artificial intelligence (AI) is an evolving structure in the digital ecosystem, and it takes work to understand and utilize, because it's malleable. You'll need to be malleable, too, meaning you have to adapt your strategies according to what's currently working. Your best chance at doing this successfully depends on your knowledge of the systems at play.</p>
+                <h3>The AI Evolution</h3>
+                <p>As contemporary YouTube users, we have grown accustomed to the site dishing up what we like, unprompted, but it hasn't always been this way. Initially, YouTube primarily was a place to find answers to our questions, like how to change a tire, and a place to be entertained, like watching cats play keyboards or laughing at kid videos, like "Charlie bit my finger." It was built on a simpler system that wasn't good at making recommendations. But YouTube today has a complex machine learning system that has gotten really good at guessing what people want. Let's take a closer look at how its AI has changed over time and why that matters to you.</p>
+                <p>About 2011, YouTube started making system changes with one purpose in mind: get people to stay on the platform longer. A YouTube researcher working on this issue found some gaping holes in the framework. For example, a huge portion of YouTube viewers had gone mobile by then, and YouTube didn't have an accurate system for tracking user behavior on mobile devices. Palm to face. There was work to be done.</p>
+                <p>Since July 2010, YouTube had been using a program called Leanback that queued up-next videos that were ready to load after the video being watched was over. There was an initial increase in views, but soon they plateaued. They got the same results from a follow-up AI program called Sibyl.</p>
+                <p>YouTube joined forces with Google Brain, Google's machine learning team, whose AI development and tools were leaps ahead of the field. Their goal was to build a system with the Google Brain foundation. Their main objective continued to be viewer longevity. On March 15, 2012, YouTube made the switch from a "View" algorithm that rewarded video view count to a "Watch time" algorithm that rewarded viewer duration. This AI followed the audience everywhere to ensure it found the right video to put in front of them. It had the capability to recommend adjacent videos rather than clone videos ("adjacent" meaning similar but different enough to keep interest). "Clone" videos inevitably pushed viewers off the platform because they were watching basically the same thing on repeat. More importantly, it would queue videos based on how long viewers had watched them instead of how many clicks and views they had gotten.</p>
+                <p>YouTube's goal was for users to "watch more and click less," meaning they didn't want viewers to have to click on a bunch of videos before finding what they wanted. The AI could match them better to content they liked so they could spend more time actually watching.</p>
+                <p>This Watch time switch transformed YouTube's viewership—people did stay on the website longer. Misleading "bait-and-switch" tactics used by some creators were no longer being rewarded by the AI, because viewers left quickly when the content didn't deliver what the title and thumbnail promised. Viewers did stay to watch videos that delivered what they said they would, and the AI kept track of these videos with longer view duration and recommended them more. Additionally, viewers stayed to watch what the AI recommended next because they were relevant to what they had already shown interest in.</p>
+                <p>In other words, viewers were taking this new AI bait: hook, line, and sinker. The new YouTube AI got visitors to stick around, and the YouTube folks were over the moon about it. They had been meticulously observing the data from the switch and waiting with collectively bated breath to see if it would work or flop. By May 2012, just a few short months after the new AI integration, the data showed that average watch time was <em>four times</em> what it had been the previous May. Collective sigh of relief.</p>
+                <p>The YouTube AI has changed over time to create a personalized feed based on customization. Its Homepage is no longer channel dominant but filled with a mix of videos directly chosen based on individual viewing patterns and behaviors. It now suggests, with uncanny accuracy, what a viewer <em>might</em> want to watch. This is a huge change from its surface recommendations. You're no longer dipping from the site (if you don't know what dipping is, ask a Gen Z kid) because the videos are just another version of the one you just watched—you're sticking around to click on the video that you've never seen before but are definitely drawn to. It's as if YouTube hired a tailor to come in and take your measurements so he could build you an outfit you didn't even know you wanted. Who doesn't love the feel of something that fits like a glove? And that also doesn't look exactly like every other outfit you own?</p>
+                <h3>Diving Deep into the Deep Learning Machine</h3>
+                <p>To explain further, let's rewind and reexamine the data. After the turn of the first decade in the twenty-first century, YouTube came face-to-face with some hard truths. First, their users were watching videos from a bunch of other platforms instead of coming to the site directly. YouTube viewership was up, but only because people were watching YouTube videos that had been shared to big platforms like Facebook and Twitter. This made it impossible for YouTube to gather data about their consumers and to retain and monetize them.</p>
+                <p>Another tough truth was that YouTube had different operating programs for different devices and applications, so they needed to collect the pieces and reboot an operating system in one place, directly from the source. Shockingly, at the time, YouTube didn't even have a dialed-in system for analyzing mobile usage, which was an embarrassing realization because a huge percentage of viewership was mobile. Its digitally ancient mobile development was painfully slow, and something needed to be done about it, stat.</p>
+                <p>Enter InnerTube in 2012: an interdepartmental program at YouTube HQ created to revamp algorithms and development from the top down. InnerTube was resetting the system and observing its reboot in one place to ensure everything fell into place correctly and <em>quickly</em>. It was imperative that implementations be made quickly and could be tested before applying across the board. If a new change didn't work, they needed to pull it promptly without it crippling the whole shebang. Then they would tweak and try again.</p>
+                <p>Another vital piece to the reboot was utilizing deep learning machines. Google's AI had undergone several phases of development and usage, and it was getting better and better. Google's deep learning AI was now capable of using gigantic neural networks that got really good at things like recommendation and search. Deep learning goes beyond basic machine learning in that it's built to mimic human neural networks. It makes nonlinear conclusions.</p>
+                <p>The input data for deep learning machines on YouTube came from the behavior of its users and monitored not only "positive" viewer behavior, like which videos they liked and kept watching, but also "negative" behavior, like which videos they skipped or even removed from their custom Homepage or "Up next" recommendations from YouTube. Monitoring both the positive and negative behavior of its users is vital to the algorithm's accuracy. This neural network has gotten so good that it can even predict what to do with new or unfamiliar videos based on current user behavior. Saying, "It has a mind of its own," is not much of a stretch. The AI actually doesn't observe the total Internet behavior of a user; it only watches what happens on YouTube. This matters because it's what maintains its pinpoint accuracy in recommendations.</p>
+                <p>How?</p>
+                <p>Let's say you went to google.com and typed "steakhouses in Los Angeles" in the search bar. Does that mean the next time you go to youtube.com you want it to recommend videos on how to grill a perfect steak? Or that you want to take a video tour of LA? Probably not. But if you search, "How to grill the perfect rare steak," directly on YouTube's search bar and click on the first recommended video, the suggested videos that pop up next might be, "World's strongest man—full day of eating," then, "How to clean a cast iron skillet." These secondary videos don't have anything to do with steak, but do you see how that viewer would be a likely candidate to continue clicking? That's a deep learning machine that knows what it's doing.</p>
+                <p>And YouTube and its ecosystem are direct benefactors, because when viewers watch more, everyone makes more money and gets more brand exposure.</p>
+                <h3>A Machine at Work . . . and It's Working</h3>
+                <p>YouTube recommends <em>hundreds of millions</em> of videos to users every single day, in dozens of different languages, in every corner of the world. Their suggestions account for 75% of the time people spend on the site.</p>
+                <p>In 2012, daily watch time averaged out at about a hundred million hours. In 2019, that average sits at a mind-blowing one billion hours a day. One billion hours of video content being collectively consumed by viewers on one website every single day! Over this seven-year span and thousands if not tens of thousands of tweaks and triggers, the deep learning AI has gotten <em>really</em> good at recommending videos to keep viewers watching longer. It has become an expert digital gardener who knows which product to harvest for each customer based on the videos they've been "feeding" on. You can be a YouTube master gardener, too, when you arm yourself with the right tools.</p>
+                <p>Just hang on to your shovel, because we are still breaking ground.</p>
+            </div>
+
+            <!-- CHAPTER 4 -->
+            <div class="chapter" id="ch-4" data-chapter="ch4">
+                <div class="chap-num">Chapter 4</div>
+                <h1>The Algorithm Breakdown</h1>
+                <p>You just learned a lot about the history of the systems that have run YouTube since its inception, and you know that those systems have become quite good at what they do. But what does that mean literally? When you go to the website, what do the systems look like as you navigate? To really grasp these foundational concepts, let's clarify what is actually happening when a site visitor shows up.</p>
+                <p>As soon as visitors arrive at youtube.com, they are being followed. It's like when you were a kid and went to your friend's house to play and their pesky kid brother just wouldn't leave you alone, but think of it this way: instead of being pesky, the brother quietly observes your behavior and accommodates your every whim. You want a snack, so he runs to the kitchen and returns with an apple. You say, "no thanks." So he takes the apple back and returns with a bag of Cheetos. You eat the Cheetos. Then you have a conversation about Han Solo, so he runs to the living room and plays <em>The Empire Strikes Back</em> for you. The next time you go to their house, as soon as you walk through the door he hands you a cookie and turns on <em>Return of the Jedi</em>. His prediction about what you might want to eat or watch is based on the last time you came over, and it's probably spot on. Oh, and also, you're probably going to want to go to their house more often with this kind of treatment. They know what you like. (Unless he recommends <em>The Last Jedi</em> or <em>Solo</em>, in which case you'll just go to the Zuckerbergs' next time because those movies stink.)</p>
+                <p>Let's say that in place of Cheetos, you wanted carrot sticks, and in place of <em>Star Wars</em>, you watched <em>The Office</em> reruns. The next time you showed up, li'l bro would offer broccoli and <em>Parks and Recreation</em>. The concept works no matter your preferences.</p>
+                <p>These examples help explain YouTube's goals:</p>
+                <ul>
+                    <li>Predict what the viewer will watch.</li>
+                    <li>Maximize the viewer's long-term engagement and satisfaction.</li>
+                </ul>
+                <p>How they do it is broken into two parts: Gathering and Using Data, and Algorithms with an "S."</p>
+                <h3>Part 1: Gathering and Using Data</h3>
+                <p>YouTube collects 80 billion data points from user behavior every single day. They gather data in two key areas in order to achieve the goals of the AI. The first area it observes is user behavior via metadata. It determines things about a video based on the behavior of the person whose eyes are on the screen and whose fingers are doing the clicking. "Satisfaction signals" train the AI what to suggest or not.</p>
+                <p>There is a very specific list of these signals:</p>
+                <ul>
+                    <li>Which videos a user watches</li>
+                    <li>Which videos they skip</li>
+                    <li>Time they spend watching</li>
+                    <li>Likes and dislikes</li>
+                    <li>"Not interested" feedback</li>
+                    <li>Surveys after watching a video</li>
+                    <li>Whether they come back to rewatch or finish something unwatched</li>
+                    <li>If they save and come back to watch later</li>
+                </ul>
+                <p>All of these signals feed the Satisfaction Feedback Loop. This loop is created based on the feedback the algorithm is getting from your specific behavior. It "loops" the types of videos you like through its suggestions. This is how it personalizes each user's experience.</p>
+                <h4>Gathering Metadata</h4>
+                <p>To really get down to the details, here's an explanation for exactly how the AI gathers data. Observing metadata starts with the thumbnail. The YouTube AI uses the advanced technology of Google's suite of AI products. It operates a program called Cloud Vision (CV). CV uses optical character recognition (OCR) and image recognition to determine lots of things about a video based on what it finds in the thumbnail. It takes points from each image in the thumbnail and, using billions of data points already in the system, recognizes those images, and feeds that information back into the algorithm.</p>
+                <p>For example, a thumbnail including a close-up of world-renowned physicist Stephen Hawking's face is recognized as such in CV, so that video can be "grouped" in the suggested feed along with every other video on YouTube that has been tagged under the Stephen Hawking topic. <strong>This is how your videos get discovered and watched.</strong></p>
+                <p>In addition, CV utilizes a "safety" tool that determines, based on the data it has gathered from the images in your thumbnail, if your video is safe for all audiences to watch, or if it has adult themes, violence, or other questionable content, and it gives a "confidence" score of that determination. This score also reflects how accurately the content matches what the thumbnail shows. This means that you can create a thumbnail, plug it into Cloud Vision, and know before you finalize your video upload how the thumbnail will likely be rated in the system. Using Cloud Vision can help catch something that might, for whatever reason, be flagged as inappropriate on any data point, and therefore can give creators the opportunity to fix it even before it is live. This has cut down on demonetization and other issues creators have had in the past. It can be a very valuable tool to help you stay one step ahead of the problems. CV is not an exact replica of YouTube's safety measures, but it is close enough that creators can get a good idea of how the content will be determined by YouTube. CV might tolerate something YouTube will not, but it is still a sufficient prelaunch tool to utilize.</p>
+                <h4>Video Intelligence</h4>
+                <p>Once the thumbnail has been checked, the AI goes through every single frame of the video and creates shot lists and labels based on what it sees in the content of the video itself. For example, if you do a video in a parking lot, the AI detects the store front, people, flowers, brands, and more, so it can log that info for recommendations and run it through the same safety routine that it uses to check thumbnail images. Be aware of what is in the frame in every scene of every video you create! It will be detected by the AI and sorted accordingly, because the AI is validating the thumbnail. The AI cuts through the "noise" of every single thing in every frame and determines what is most important according to that video and its metadata.</p>
+                <h4>Closed Captioning</h4>
+                <p>The AI does the same thing with the language of the video. YouTube has an auto-caption feature now, and the AI reads through the words of the caption to gather data as well. So basically going through the video frames using shot lists is like looking at what is visually being said, while listening to the audio provides even more feedback via what is actually being verbalized. <em>Everything</em> goes into the system.</p>
+                <h4>Natural Language</h4>
+                <p>The AI is also listening for actual sentence structure and breaking it down into a sentence diagram. This extracts the meaning of what is being said. It can differentiate language so it can group it categorically, but not just on the surface. For example, two different creators might both talk about Stephen Hawking in their videos, but one video might be biographical or scientific while the other might be humorous or entertaining. Even though both videos are talking about the same person, they are categorically different enough that the AI would categorize them differently and group them with different recommended content because of the language being used.</p>
+                <h4>Video Title and Description</h4>
+                <p>As you should expect, the algorithm also looks at the video's title and description to supplement what it has already learned from the thumbnail, frame by frame, and the language. But it only tracks this as long as it needs to before it will use viewer data that comes in. The AI "knows" that people can be deceptive with metadata, but they can't lie about what's actually in the content. Don't slap a title and description on your video haphazardly just to get it finished and uploaded. The verbiage matters, so choose your words wisely. Most creators don't leverage the video description to its fullest potential. It's another data point the AI looks at to help with search ranking and discovery.</p>
+                <h3>Part 2: Algorithms with an "S"</h3>
+                <p>Did you know that YouTube has more than one algorithm? The AI uses multiple systems, and each has its own objective and goal.</p>
+                <p>The surface features viewers see are:</p>
+                <ul>
+                    <li>Browse Features: Homepage and Subscription</li>
+                    <li>Suggested</li>
+                    <li>Trending</li>
+                    <li>Notification</li>
+                    <li>Search</li>
+                </ul>
+                <p>Each of these features runs separate algorithms trying to be optimized for a higher hit rate, and they all feed into the YouTube AI. They have separate hit rates to determine what actually works for users in each particular system. Hit rate means how often viewers are able to find what they actually want to watch. Have you ever heard of a fisherman getting a "hit?" It's when a fish takes the bait. Imagine that you are the fisherman who has tossed his video into the water. Potential viewers are the fish swimming by your "bait." Maybe 10 fish take a look at the bait and swim on by because it's not the brand of bait that they like. But along comes a fish who says, "That looks good," and he bites. Say you toss this line 10 times, and while 100 fish swam past, 10 took the bait. There's your hit rate. This hit rate is so important to each system in the AI. The algorithms are very sensitive to user behavior and the metadata on each traffic source so that they know how to change to increase the hit rate.</p>
+                <p>Additionally, YouTube is constantly running experiments—several thousand a year—and they implement about 1 in 10 changes as they go, so this translates to hundreds of changes being implemented annually. These changes help the system get smarter, and smarter means better at feeding viewers what they will watch.</p>
+                <h4>Browse: Homepage</h4>
+                <p>YouTube's Homepage has changed over time. Users no longer have to type a query in Search or to put in the work to navigate. The Homepage used to be where users saw only video recommendations of channels they had subscribed to. Now the Homepage has a personalized recommendation feed based on that user's history over time.</p>
+                <p>As long as a user is logged in when using YouTube, the algorithms can keep track of what videos that particular user has watched in the past so it can make better suggestions for videos that user is likely to watch, even if they haven't watched those videos in the past. This seems counterintuitive. It seems like the algorithm could be more successful suggesting videos it knows a user has already watched and liked, but actually the opposite is true. Keeping suggestions fresh actually gets users to stick around on the platform longer because they aren't getting bored with the same old stuff.</p>
+                <p>How YouTube does this is by breaking down the Homepage into two categories: familiar and discovered. It shows users familiar content from places the viewer has gone to before. These suggestions could include trending or recent videos from a channel a viewer has already watched. The discovery side includes videos or channels that users with similar viewing patterns have watched and liked. YouTube has found that these combined strategies are keeping viewers better engaged. If you want to get on the Homepage—and this definitely should be your goal—learn the triggers that get videos there. Try to improve your click-through rate and audience retention, because these will help you get pushed out to a more general audience.</p>
+                <h4>Browse: Subscription</h4>
+                <p>This one doesn't need a lot of explanation. The Subscription section pulls content from channels you've already subscribed to. It will suggest new videos from your subscribed channels, especially new videos with similar content to what you've consumed before. For example, you watched a prank video or two from a channel you have subscribed to, so the AI pulls that channel's newest prank into your Subscription feed.</p>
+                <h4>Suggested</h4>
+                <p>Another place besides the Homepage creators should be focusing on is Suggested feed, including the "Up Next" video. These are the suggestions below (on mobile) or to the right (on desktop) of the video that is being watched. This is a powerful place to be! Viewers stick around when this feature is working really well, and sticky viewers are YouTube's goal. So if you can use the triggers to get your video in the Suggested feed, you're exactly where you need to be.</p>
+                <p>What are the triggers? First, make sure you have created a strong relationship among the data in your own content. This means that if the metadata connects among your videos, the algorithm plugs your videos into the Up Next feed, and your video's likelihood of being watched skyrockets. Metadata includes title, keywords, description, and the content itself. We talk in depth about metadata in Part III of the book. The viewers' behaviors trigger which videos get put in the Suggested feed as well, so when your content keeps viewers watching instead of bouncing, your content is more likely to be recommended here.</p>
+                <p>Other things the AI looks for in this feature include the "rabbit hole" type and the "watch something else" type. Rabbit hole explains itself pretty well. It's the type of videos that are similar in one way or another that keeps the viewer following a specific path. These include:</p>
+                <ul>
+                    <li>Videos from the same channel</li>
+                    <li>Videos and channels that are similar to the one playing</li>
+                    <li>Videos that other people watched after watching the current video</li>
+                </ul>
+                <p>The watch something else type (also self-explanatory) exists because viewers eventually tire of watching videos with similarities, and they need something entirely different if they are going to stick around. This isn't a random selection; it's still a personalized recommendation based on their past behavior. This recommendation comes when the AI has a stored history of what that viewer has watched over time.</p>
+                <h4>Trending</h4>
+                <p>I like to call this the geo-specific water cooler. A common misconception is that "trending" is synonymous with "popular," but it's not. Trending topics are broad topics that people are talking about right now all across the Internet. It is what's currently happening in the news, on social media, websites, blogs, and elsewhere. By "geo-specific" I mean that even the Internet has geographical regions, both in location and in authority. Websites with more authority than others will have topics that trend better because YouTube knows more eyes will be on them, so it pulls those topics into their own Trending section. They realize it's what people are seeing elsewhere so they're more likely to click on that topic when they are on YouTube as well. By location, groups that live in the same area often are interested in the same things. For example, something that would trend well in LA likely would fall flat in the Midwest.</p>
+                <h4>Notification</h4>
+                <p>When someone subscribes to your channel they can be notified by YouTube when you upload a new video, but only if that subscriber has also clicked on the bell button. The notification comes through on the subscriber's YouTube app or via email.</p>
+                <h4>Search</h4>
+                <p>Another straightforward feature is the Search. Users type in a keyword or phrase as a query to find what they want to watch. The Search feature displays videos related to that query. The algorithm narrows down the results based on the metadata and the video generated by the creator, and it also looks closely at past data from people searching similar queries, and how they responded to those videos. A lot of people think they just need to do SEO to make their video go to the top, but there is a "freshness" feature that will pull new videos into these results. Take a look at what's trending and create content with the right connecting metadata. Know especially what's trending in your niche. If your video performs well, the algorithm keeps it in the Search results, but if it doesn't, it drops it.</p>
+                <h3>It's Not YouTube's Fault</h3>
+                <p>You have just learned a lot about YouTube's history and its inner workings . . . congratulations! You've done some good digging. But do you find yourself musing, "Okay, great, but what does all of this mean for my <em>content</em>?"</p>
+                <p>I often come across creators with good intentions and lofty goals, but they aren't seeing the results they want to see, and they blame YouTube for it. If I can get anything from these first chapters to stick in your head it is this: <em>Don't blame YouTube, blame your content</em>.</p>
+                <p>I know this sounds harsh—like I just called your baby ugly—but try to take a step back and look at it objectively. Maybe your baby really is ugly. If you can swallow the hard pill that maybe your content is to blame instead of the Big Bad Algorithm, you'll be ready to learn the YouTube Formula. If you won't consider that you might be doing something wrong, then nothing I say will help you, and you might as well close the book.</p>
+                <p>Now that you understand the inner workings of the algorithm a little better, you can move through the rest of this book ready to implement systems and strategies that work with the algorithm instead of being subject to intimidation or ignorance of it. YouTube's objective is simple: engagement and satisfaction with viewers. At the end of the day, it's all about creating good content. The purpose of this book is to teach you the formula to align yourself with YouTube's goals, and to be able to analyze how your content performs so you can adjust to achieve viewer satisfaction. You'll be ready to arm yourself with the tools you need to dig in and plant the right seeds in your content garden.</p>
+            </div>
+
+        </div><!-- /content -->
+
+        <div class="footer-note">
+            📖 Part One · <a href="index.html">← Back to Home</a>
+        </div>
+
+    </div><!-- /reader -->
+
+    <script>
+        (function() {
+            'use strict';
+
+            // --- DOM refs ---
+            const body = document.body;
+            const themeToggle = document.getElementById('themeToggle');
+            const tocToggle = document.getElementById('tocToggle');
+            const tocOverlay = document.getElementById('tocOverlay');
+            const tocClose = document.getElementById('tocClose');
+            const exportBtn = document.getElementById('exportBtn');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+            const hlYellowBtn = document.getElementById('hlYellow');
+            const hlPinkBtn = document.getElementById('hlPink');
+            const content = document.getElementById('content');
+            const progressBar = document.getElementById('progressBar');
+
+            // --- dark mode ---
+            themeToggle.addEventListener('click', () => {
+                body.classList.toggle('dark');
+                themeToggle.textContent = body.classList.contains('dark') ? '☀️ Light' : '🌙 Dark';
+            });
+
+            // --- TOC ---
+            tocToggle.addEventListener('click', () => tocOverlay.classList.toggle('open'));
+            tocClose.addEventListener('click', () => tocOverlay.classList.remove('open'));
+            tocOverlay.addEventListener('click', (e) => {
+                if (e.target === tocOverlay) tocOverlay.classList.remove('open');
+            });
+
+            // --- Highlighting logic ---
+            // We store highlights as an array of { chapter, text, color }
+            const STORAGE_KEY = 'ytf_highlights_part1';
+
+            function loadHighlights() {
+                try {
+                    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+                } catch { return []; }
+            }
+
+            function saveHighlights(highlights) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(highlights));
+            }
+
+            // Apply highlights to the DOM
+            function applyHighlights() {
+                const highlights = loadHighlights();
+                // Remove all existing highlight classes first
+                document.querySelectorAll('.hl-yellow, .hl-pink').forEach(el => {
+                    el.classList.remove('hl-yellow', 'hl-pink', 'active-hl');
+                    // unwrap if needed? We'll just remove the class.
+                });
+                // Re-apply: find text nodes by chapter and text content.
+                // We'll use a simpler approach: iterate over all paragraphs and try to match.
+                // For robustness, we store chapter + text. We'll scan all <p> and <li> etc.
+                const walker = document.createTreeWalker(
+                    content,
+                    NodeFilter.SHOW_TEXT,
+                    {
+                        acceptNode: function(node) {
+                            // Only within chapter divs
+                            const parent = node.parentElement;
+                            if (!parent) return NodeFilter.FILTER_REJECT;
+                            // Avoid nested highlight spans
+                            if (parent.closest('.hl-yellow') || parent.closest('.hl-pink')) return NodeFilter.FILTER_REJECT;
+                            const text = node.textContent.trim();
+                            if (text.length < 2) return NodeFilter.FILTER_REJECT;
+                            return NodeFilter.FILTER_ACCEPT;
+                        }
+                    }
+                );
+
+                const textNodes = [];
+                let node;
+                while (node = walker.nextNode()) {
+                    textNodes.push(node);
+                }
+
+                // For each highlight, find the matching text node and wrap it.
+                highlights.forEach(h => {
+                    // Find a text node that contains this exact text.
+                    // We'll match the full text content exactly.
+                    for (let tn of textNodes) {
+                        const fullText = tn.textContent;
+                        // If the text node contains the highlight text (exact match)
+                        // We need to be careful with partial matches. We'll split.
+                        if (fullText.includes(h.text)) {
+                            // We need to wrap only the matching part.
+                            // Since we have exact text, we can replace.
+                            // But we might have multiple matches, so we use replace with a wrapper.
+                            // We'll use a more precise approach: find the index.
+                            const index = fullText.indexOf(h.text);
+                            if (index !== -1) {
+                                const parent = tn.parentNode;
+                                const before = fullText.substring(0, index);
+                                const after = fullText.substring(index + h.text.length);
+                                const span = document.createElement('span');
+                                span.className = h.color === 'yellow' ? 'hl-yellow' : 'hl-pink';
+                                span.textContent = h.text;
+                                // replace the text node with before + span + after
+                                const frag = document.createDocumentFragment();
+                                if (before) frag.appendChild(document.createTextNode(before));
+                                frag.appendChild(span);
+                                if (after) frag.appendChild(document.createTextNode(after));
+                                parent.replaceChild(frag, tn);
+                                // update textNodes list? we'll just break and re-scan next highlight
+                                // but we need to update the array since we modified the tree.
+                                // We'll just break and restart the loop.
+                                // Simpler: re-run applyHighlights after each modification? 
+                                // For now, we'll just note that we modified and continue.
+                                // But the index changes. We'll just restart the whole process after modifications.
+                                // To avoid infinite loops, we'll just do it once per highlight.
+                                // Actually, we'll break out of the for loop and restart the entire process.
+                                // Let's just use a while loop with a flag.
+                                // But for simplicity, we'll just do a single pass and hope it works.
+                                // We'll handle this more robustly.
+                                // Since we modify the DOM, we need to re-fetch text nodes.
+                                // We'll just abort this attempt and use a different strategy: 
+                                // We'll use a recursive function to find and replace.
+                                // For the sake of brevity and reliability, we'll use a simpler approach:
+                                // We'll store the text content and the parent element, and then highlight the text.
+                                // But given the complexity, I'll implement a simpler version: 
+                                // We'll only highlight exact matches in paragraphs.
+                                // This is a known limitation.
+                            }
+                        }
+                    }
+                });
+            }
+
+            // A more robust highlight application: we store the text and the parent element.
+            // We'll just re-apply by clearing and re-adding spans.
+            function applyHighlightsV2() {
+                const highlights = loadHighlights();
+                // Remove all existing highlight spans
+                document.querySelectorAll('.hl-yellow, .hl-pink').forEach(el => {
+                    const parent = el.parentNode;
+                    const text = el.textContent;
+                    parent.replaceChild(document.createTextNode(text), el);
+                    parent.normalize();
+                });
+
+                // Now re-apply
+                const walker = document.createTreeWalker(
+                    content,
+                    NodeFilter.SHOW_TEXT,
+                    {
+                        acceptNode: function(node) {
+                            const parent = node.parentElement;
+                            if (!parent) return NodeFilter.FILTER_REJECT;
+                            if (parent.closest('.hl-yellow') || parent.closest('.hl-pink')) return NodeFilter.FILTER_REJECT;
+                            if (node.textContent.trim().length < 2) return NodeFilter.FILTER_REJECT;
+                            return NodeFilter.FILTER_ACCEPT;
+                        }
+                    }
+                );
+
+                const textNodes = [];
+                let node;
+                while (node = walker.nextNode()) {
+                    textNodes.push(node);
+                }
+
+                highlights.forEach(h => {
+                    for (let tn of textNodes) {
+                        const fullText = tn.textContent;
+                        if (fullText.includes(h.text)) {
+                            const index = fullText.indexOf(h.text);
+                            if (index !== -1) {
+                                const parent = tn.parentNode;
+                                const before = fullText.substring(0, index);
+                                const after = fullText.substring(index + h.text.length);
+                                const span = document.createElement('span');
+                                span.className = h.color === 'yellow' ? 'hl-yellow' : 'hl-pink';
+                                span.textContent = h.text;
+                                const frag = document.createDocumentFragment();
+                                if (before) frag.appendChild(document.createTextNode(before));
+                                frag.appendChild(span);
+                                if (after) frag.appendChild(document.createTextNode(after));
+                                parent.replaceChild(frag, tn);
+                                // update textNodes? we'll break to avoid issues
+                                // But we need to remove this node from the list to prevent double processing.
+                                // We'll just break out of the loop.
+                                // We also need to remove the processed node from the list.
+                                // Simple: we'll just continue.
+                                // To avoid infinite loop, we'll remove the node from the array.
+                                const idx = textNodes.indexOf(tn);
+                                if (idx !== -1) textNodes.splice(idx, 1);
+                                break;
+                            }
+                        }
+                    }
+                });
+            }
+
+            // --- Click to highlight ---
+            // When user clicks on text, we'll add a highlight.
+            // We'll use a "highlight mode" selection.
+            let currentColor = null; // 'yellow' or 'pink'
+
+            hlYellowBtn.addEventListener('click', () => {
+                currentColor = currentColor === 'yellow' ? null : 'yellow';
+                hlYellowBtn.style.outline = currentColor === 'yellow' ? '2px solid #000' : 'none';
+                hlPinkBtn.style.outline = 'none';
+                if (currentColor) {
+                    document.body.style.cursor = 'text';
+                } else {
+                    document.body.style.cursor = 'default';
+                }
+            });
+
+            hlPinkBtn.addEventListener('click', () => {
+                currentColor = currentColor === 'pink' ? null : 'pink';
+                hlPinkBtn.style.outline = currentColor === 'pink' ? '2px solid #000' : 'none';
+                hlYellowBtn.style.outline = 'none';
+                if (currentColor) {
+                    document.body.style.cursor = 'text';
+                } else {
+                    document.body.style.cursor = 'default';
+                }
+            });
+
+            content.addEventListener('mouseup', function(e) {
+                if (!currentColor) return;
+                const selection = window.getSelection();
+                if (!selection || selection.isCollapsed) return;
+                const text = selection.toString().trim();
+                if (text.length < 2) return;
+
+                // Get the chapter
+                const chapterEl = selection.anchorNode.closest ? selection.anchorNode.closest('.chapter') : null;
+                if (!chapterEl) return;
+                const chapterId = chapterEl.id || 'unknown';
+
+                // Save highlight
+                const highlights = loadHighlights();
+                // Avoid duplicates
+                const exists = highlights.some(h => h.chapter === chapterId && h.text === text && h.color === currentColor);
+                if (!exists) {
+                    highlights.push({ chapter: chapterId, text: text, color: currentColor });
+                    saveHighlights(highlights);
+                    // Re-apply all highlights to reflect changes
+                    applyHighlightsV2();
+                }
+                selection.removeAllRanges();
+            });
+
+            // Click on a highlight to remove it
+            content.addEventListener('click', function(e) {
+                const target = e.target;
+                if (target.classList.contains('hl-yellow') || target.classList.contains('hl-pink')) {
+                    const text = target.textContent;
+                    const chapterEl = target.closest('.chapter');
+                    if (!chapterEl) return;
+                    const chapterId = chapterEl.id || 'unknown';
+                    const color = target.classList.contains('hl-yellow') ? 'yellow' : 'pink';
+                    let highlights = loadHighlights();
+                    highlights = highlights.filter(h => !(h.chapter === chapterId && h.text === text && h.color === color));
+                    saveHighlights(highlights);
+                    // Remove the span
+                    const parent = target.parentNode;
+                    parent.replaceChild(document.createTextNode(text), target);
+                    parent.normalize();
+                    // Re-apply to ensure consistency
+                    applyHighlightsV2();
+                }
+            });
+
+            // --- Export highlights ---
+            exportBtn.addEventListener('click', function() {
+                const highlights = loadHighlights();
+                if (highlights.length === 0) {
+                    alert('No highlights to export.');
+                    return;
+                }
+                let text = '📘 The YouTube Formula – Part One Highlights\n\n';
+                highlights.forEach(h => {
+                    text += `[${h.chapter}] (${h.color}) ${h.text}\n`;
+                });
+                const blob = new Blob([text], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'youtube-formula-highlights-part1.txt';
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+
+            // --- Clear all highlights ---
+            clearAllBtn.addEventListener('click', function() {
+                if (confirm('Remove all highlights?')) {
+                    saveHighlights([]);
+                    applyHighlightsV2();
+                }
+            });
+
+            // --- Progress ---
+            function updateProgress() {
+                const scrollTop = window.scrollY || document.documentElement.scrollTop;
+                const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+                progressBar.style.width = progress + '%';
+            }
+            window.addEventListener('scroll', updateProgress);
+            window.addEventListener('resize', updateProgress);
+
+            // --- Init ---
+            applyHighlightsV2();
+            updateProgress();
+
+            // Re-apply after any DOM changes
+            const observer = new MutationObserver(() => {
+                applyHighlightsV2();
+            });
+            observer.observe(content, { childList: true, subtree: true });
+
+        })();
+    </script>
+
+</body>
+</html>
